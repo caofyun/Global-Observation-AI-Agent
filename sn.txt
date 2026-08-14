@@ -1,0 +1,11 @@
+目录		作用
+docs	项目设计文档，
+src		以后真正的程序代码
+agents	新闻Agent、脚本Agent、素材Agent等
+core	总控、工作流、项目管理
+data	数据结构、JSON读写
+utils		通用工具
+projects	以后每个视频项目的实际生产文件
+tests	测试程序
+config	路径、系统配置
+main.py	整个AI生产系统的入口
