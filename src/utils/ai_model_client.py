@@ -1,13 +1,24 @@
 # ==========================================
 # 环球观察速递
-# AIModelClient V1.0
+# AIModelClient V2.0
 #
-# 统一AI模型调用接口
+# 功能：
+# 1. 读取AI配置
+# 2. 支持Gemini
+# 3. 调用真实Gemini API
+# 4. 返回AI文本结果
 #
-# 当前版本：
-# 先建立统一接口
-# 暂不连接具体AI API
+# V2.0暂时只接入Gemini
+# 后续再扩展OpenAI / Claude
 # ==========================================
+
+from google import genai
+
+from src.config.ai_config import (
+    AI_PROVIDER,
+    AI_MODEL,
+    AI_API_KEY
+)
 
 
 class AIModelClient:
@@ -20,8 +31,34 @@ class AIModelClient:
 
         self.name = "AI模型客户端"
 
+        self.provider = AI_PROVIDER
+
+        self.model = AI_MODEL
+
+        self.api_key = AI_API_KEY
+
+        # ======================================
+        # 创建Gemini客户端
+        # ======================================
+
+        if self.provider == "gemini":
+
+            if not self.api_key:
+
+                raise ValueError(
+                    "Gemini API Key不存在"
+                )
+
+            self.client = genai.Client(
+                api_key=self.api_key
+            )
+
+        else:
+
+            self.client = None
+
     # ==========================================
-    # AI分析接口
+    # AI分析
     # ==========================================
 
     def analyze(self, prompt):
@@ -37,20 +74,38 @@ class AIModelClient:
             )
 
         # ======================================
-        # 当前V1.0暂时使用模拟返回
-        #
-        # 后续这里接入：
-        # OpenAI / Claude / Gemini / 本地模型
+        # Gemini
         # ======================================
 
-        return {
+        if self.provider == "gemini":
 
-            "status": "MOCK",
+            response = self.client.models.generate_content(
 
-            "message":
-                "AI模型接口测试成功",
+                model=self.model,
 
-            "prompt":
-                prompt
+                contents=prompt
 
-        }
+            )
+
+            return {
+
+                "status": "SUCCESS",
+
+                "provider": self.provider,
+
+                "model": self.model,
+
+                "content": response.text
+
+            }
+
+        # ======================================
+        # 暂不支持其他模型
+        # ======================================
+
+        raise ValueError(
+
+            f"暂不支持的AI服务商："
+            f"{self.provider}"
+
+        )
