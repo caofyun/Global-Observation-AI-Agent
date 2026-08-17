@@ -14,14 +14,14 @@ sys.path.append(
 )
 
 
-from src.utils.ai_model_client import AIModelClient
+import src.utils.ai_model_client
 
 
 # ==========================================
 # 创建AI客户端
 # ==========================================
 
-client = AIModelClient()
+client = src.utils.ai_model_client.AIModelClient()
 
 
 # ==========================================
