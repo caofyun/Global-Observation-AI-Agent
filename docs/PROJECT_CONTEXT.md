@@ -4,36 +4,29 @@
 
 版本：
 
-V1.0
-
+V1.1
 
 更新时间：
 
-2026-08-17
-
+2026-08-18
 
 项目状态：
 
 Active Development
 
-
 ---
 
 # 1. 项目简介
-
 
 ## 项目名称
 
 Global-Observation-AI-Agent
 
-
 ## 项目定位
-
 
 开发一个：
 
 AI驱动的短视频内容生产智能体系统。
-
 
 目标：
 
@@ -47,11 +40,19 @@ AI驱动的短视频内容生产智能体系统。
 
 ↓
 
+新闻核验
+
+↓
+
 选题判断
 
 ↓
 
 视频脚本生成
+
+↓
+
+分镜设计
 
 ↓
 
@@ -85,127 +86,115 @@ AI驱动的短视频内容生产智能体系统。
 
 发布
 
+最终形成：
 
+AI辅助 + 人工确认
+
+的半自动视频生产系统。
 
 ---
 
 # 2. 项目最终目标
 
-
 打造：
 
 AI + 人工协作
 
-的半自动视频生产系统。
-
+的智能内容生产平台。
 
 原则：
 
 AI负责：
 
-- 信息处理
-- 内容生成
-- 自动化执行
-
+* 信息处理
+* 数据分析
+* 内容生成
+* 自动化执行
 
 人工负责：
 
-- 最终判断
-- 内容审核
-- 发布确认
-
-
+* 最终判断
+* 内容审核
+* 发布确认
 
 ---
 
 # 3. 当前应用方向
 
-
 主要服务：
 
 “环球观察速递”
 
-
 内容方向：
 
-全球新闻
-
-国际热点
-
-军事资讯
-
-科技趋势
-
-能源安全
-
-
+* 全球新闻
+* 国际热点
+* 军事资讯
+* 科技趋势
+* 能源安全
 
 内容原则：
 
-- 客观
-- 中立
-- 不站队
-- 不制造恐慌
-- 不进行未经证实预测
-
-
+* 客观
+* 中立
+* 不站队
+* 不制造恐慌
+* 不进行未经证实预测
 
 ---
 
 # 4. 技术架构
 
-
 ## 开发语言
-
 
 Python 3.13
 
-
 ## 开发环境
-
 
 VS Code
 
-
 ## 版本管理
-
 
 GitHub
 
-
 ## AI模型
-
 
 当前：
 
 Gemini
 
-
 模型：
 
 gemini-3.1-flash-lite
 
-
-
 ## AI调用方式
-
 
 Google GenAI SDK
 
+设计原则：
 
+AI模型可替换。
+
+未来支持：
+
+* OpenAI
+* Claude
+* 其他模型
 
 ---
 
-# 5. 总体系统架构
-
-
+# 5. 系统总体架构
 
 ```
 用户
 
 ↓
 
-AI内容生产总控Agent
+ProductionController
+
+↓
+
+AI内容生产总控层
 
 
 ↓
@@ -284,63 +273,200 @@ VideoAgent
 
 ```
 
+---
 
+# 6. 核心系统分层
+
+当前系统采用：
+
+模块化 Agent 架构。
+
+整体分为四层：
+
+## Layer 1：控制层
+
+位置：
+
+```
+src/core
+```
+
+主要组件：
+
+```
+ProjectManager
+
+ProductionController
+```
+
+职责：
+
+* 项目管理
+* Agent调度
+* 工作流程控制
+* 生产任务协调
 
 ---
 
-# 6. 当前项目目录结构
+## Layer 2：Agent层
 
+位置：
 
+```
+src/agents
+```
+
+当前Agent：
+
+| Agent        | 状态    |
+| ------------ | ----- |
+| BaseAgent    | 完成    |
+| NewsAgent    | 完成    |
+| NewsVerifier | 开发升级中 |
+
+未来：
+
+| Agent           | 状态 |
+| --------------- | -- |
+| ScriptAgent     | 计划 |
+| StoryboardAgent | 计划 |
+| MaterialAgent   | 计划 |
+| VoiceAgent      | 计划 |
+| SubtitleAgent   | 计划 |
+| VideoAgent      | 计划 |
+
+---
+
+## Layer 3：工具层
+
+位置：
+
+```
+src/utils
+```
+
+当前工具：
+
+### AIModelClient
+
+功能：
+
+统一AI模型调用。
+
+支持：
+
+Gemini API
+
+---
+
+### SearchTool
+
+功能：
+
+新闻搜索能力。
+
+---
+
+## Layer 4：配置层
+
+位置：
+
+```
+src/config
+```
+
+当前：
+
+```
+ai_config.py
+```
+
+负责：
+
+* AI Provider配置
+* 模型配置
+* API Key管理
+
+---
+
+# 7. Agent Registry
+
+当前系统Agent注册表：
+
+| 模块                   | 版本   | 状态   | 说明       |
+| -------------------- | ---- | ---- | -------- |
+| BaseAgent            | V1.0 | 完成   | Agent基础类 |
+| SearchTool           | V1.0 | 完成   | 搜索能力     |
+| NewsAgent            | V2.0 | 完成   | 新闻整理     |
+| NewsVerifier         | V1.0 | 完成   | 新闻核验     |
+| AIModelClient        | V2.0 | 完成   | AI接口     |
+| ProjectManager       | V1.0 | 完成   | 项目管理     |
+| ProductionController | V1.0 | 基础完成 | 流程控制     |
+
+---
+
+# 8. 当前项目目录结构
 
 ```
 Global-Observation-AI-Agent
 
 
-├── agents
-
 ├── src
 
-│   ├── agents
+│
+├── agents
 
-│   ├── config
+│   ├── base_agent.py
 
-│   └── utils
+│   ├── news_agent.py
+
+│   └── news_verifier.py
+
+
+├── config
+
+│   └── ai_config.py
+
+
+├── core
+
+│   ├── ProjectManager
+
+│   ├── production_controller.py
+
+│   └── __init__.py
+
+
+├── utils
+
+│   ├── ai_model_client.py
+
+│   └── search_tool.py
 
 
 ├── tests
 
+├── projects
 
 ├── docs
 
-
-├── projects
-
-
 ├── .env
-
 
 ├── .gitignore
 
-
-└── requirements.txt
+└── main.py
 
 ```
 
-
-
 ---
 
-# 7. 开发阶段状态
+# 9. 当前开发阶段
 
-
-# Phase 0 项目设计阶段
-
+## Phase 0 项目设计阶段
 
 状态：
 
 完成
-
-
 
 完成：
 
@@ -356,513 +482,203 @@ Global-Observation-AI-Agent
 
 ✅ 技术路线选择
 
-
-
 ---
 
-# Phase 1 基础Agent框架
-
+# Phase 1 Agent基础框架
 
 状态：
 
 进行中
 
+已完成：
 
+✅ BaseAgent
 
-## 已完成
+✅ SearchTool
 
+✅ NewsAgent
 
+✅ NewsVerifier V1.0
 
-## ProjectManager
+✅ AIModelClient
 
+✅ ProjectManager
 
-状态：
-
-完成
-
-
-功能：
-
-项目目录管理
-
-
-
-测试：
-
-通过
-
-
-
----
-
-## BaseAgent
-
-
-状态：
-
-完成
-
-
-功能：
-
-所有Agent基础类
-
-
-
-测试：
-
-通过
-
-
-
----
-
-## SearchTool V1.0
-
-
-状态：
-
-完成
-
-
-功能：
-
-新闻搜索基础能力
-
-
-
-测试：
-
-通过
-
-
-
----
-
-## NewsAgent V2.0
-
-
-状态：
-
-完成
-
-
-功能：
-
-新闻搜索结果整理
-
-
-
-输出：
-
-search_results.json
-
-
-
-测试：
-
-通过
-
-
-
----
-
-## NewsVerifier V1.0
-
-
-状态：
-
-完成
-
-
-文件：
-
-```
-src/agents/news_verifier.py
-```
-
-
-
-当前能力：
-
-- 新闻来源分析
-- 来源数量统计
-- 标题去重
-- 基础验证报告
-
-
-
-输出：
-
-verification.json
-
-
-
-测试：
-
-通过
-
-
-
----
-
-## AIModelClient V2.0
-
-
-状态：
-
-完成
-
-
-功能：
-
-统一AI模型调用接口
-
-
-
-当前支持：
-
-Gemini
-
-
-
-测试：
-
-成功
-
-
-
-测试结果：
-
-```
-status:
-
-SUCCESS
-
-
-provider:
-
-gemini
-
-
-model:
-
-gemini-3.1-flash-lite
-
-
-content:
-
-Gemini API连接成功
-```
-
-
-
----
-
-# 8. 当前正在开发
-
-
-阶段：
-
-Phase 1
-
-
-当前任务：
+当前：
 
 NewsVerifier V2.0升级
 
+---
 
+# 10. 数据流设计
 
-目标：
-
-
-在V1.0基础上增加：
-
-- AI事实分析
-- 事实主张提取
-- 来源冲突检测
-- 可信度评分
-- 风险提示
-
-
-
-新增输出：
+核心数据流：
 
 ```
+SearchTool
+
+↓
+
+search_results.json
+
+↓
+
+NewsAgent
+
+↓
+
+新闻结构化数据
+
+↓
+
+NewsVerifier
+
+↓
+
+verification.json
+
+↓
+
+AI事实分析
+
+↓
+
 ai_verification.json
+
 ```
 
+数据原则：
 
+每个Agent：
+
+输入明确。
+
+输出明确。
+
+通过数据结构协作。
 
 ---
 
-# 9. 重要设计原则
-
+# 11. 重要开发原则
 
 ## 代码修改原则
 
-
 必须：
 
-1.
+1. 需求分析
 
-先设计
+2. 设计文档
 
+3. 代码实现
 
-2.
+4. 测试
 
-再编码
+5. 更新文档
 
-
-3.
-
-测试
-
-
-4.
-
-更新文档
-
-
-5.
-
-Git提交
-
-
-
----
-
-## 修改代码规则
-
-
-修改代码时：
-
-不要提供局部修改。
-
-
-必须提供：
-
-完整文件。
-
-
-修改位置：
-
-增加注释说明。
-
-
+6. Git提交
 
 ---
 
 ## AI使用原则
 
-
 AI不能：
 
 自动决定新闻真假。
-
 
 AI只能：
 
 辅助分析。
 
-
 最终：
 
 人工审核。
 
-
-
 ---
 
-# 10. Git管理规则
+# 12. 文档管理规则
 
-
-每完成一个功能：
-
-执行：
-
-
-```
-git add
-
-git commit
-
-git push
-
-```
-
-
-
-Commit信息清晰描述：
-
-例如：
-
-```
-Add NewsVerifier V2.0 design
-```
-
-
-
----
-
-# 11. 文档管理规则
-
-
-docs目录是项目长期记忆。
-
-
-重要变化必须更新：
-
+项目长期记忆：
 
 ```
 PROJECT_CONTEXT.md
+```
 
+项目当前状态：
 
+```
 00_PROJECT_STATUS.md
-
 ```
 
-
-
----
-
-# 12. 当前关键文件
-
-
-## 项目状态
+任务管理：
 
 ```
-docs/00_PROJECT_STATUS.md
+TASKS.md
 ```
 
-
-
-## 项目长期上下文
+版本历史：
 
 ```
-docs/PROJECT_CONTEXT.md
+CHANGELOG.md
 ```
 
-
-
-## NewsVerifier设计
-
-```
-docs/06_NEWS_VERIFIER_DESIGN.md
-```
-
-
-
-## AI数据结构
-
-```
-docs/07_AI_VERIFICATION_DATA_STRUCTURE.md
-```
-
-
-
-## NewsVerifier升级计划
-
-```
-docs/08_NEWS_VERIFIER_V2_UPGRADE_PLAN.md
-```
-
-
+重要变化必须同步更新。
 
 ---
 
 # 13. 当前下一步任务
 
-
 继续：
 
 NewsVerifier V2.0升级。
 
+目标：
 
+增加：
 
-顺序：
+* AI事实分析
+* 事实主张提取
+* 来源冲突检测
+* 可信度评分
+* 风险提示
 
-1.
-
-升级：
-
-```
-src/agents/news_verifier.py
-```
-
-
-2.
-
-更新测试：
-
-```
-tests/test_news_verifier.py
-```
-
-
-3.
-
-运行测试
-
-
-4.
-
-生成：
+新增：
 
 ```
 ai_verification.json
 ```
 
-
-5.
-
-更新项目状态
-
-
-6.
-
-Git提交
-
-
-
 ---
 
-# 14. 项目当前状态总结
-
+# 项目当前状态总结
 
 项目：
 
-🟢 正常开发
+🟢 Active Development
 
+架构：
+
+🟢 Agent系统已建立
+
+AI：
+
+🟢 Gemini API正常
 
 GitHub：
 
-🟢 已连接
-
-
-Gemini API：
-
 🟢 正常
 
-
-跨电脑开发：
-
-🟢 已验证
-
-
-文档体系：
+测试体系：
 
 🟢 已建立
-
 
 当前阶段：
 
 Phase 1
 
-
 当前任务：
 
 NewsVerifier V2.0
 
+版本：
 
-```
+PROJECT_CONTEXT V1.1
