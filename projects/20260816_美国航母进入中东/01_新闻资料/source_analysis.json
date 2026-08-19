@@ -1,0 +1,112 @@
+{
+    "topic": "美国航母进入中东",
+    "total_sources": 21,
+    "source_quality_score": 14,
+    "sources": [
+        {
+            "source": "chinanews.com.cn",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "VOV World",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "stcn.com",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "user.guancha.cn",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "新浪新闻_手机新浪网",
+            "score": 60,
+            "level": "C"
+        },
+        {
+            "source": "新浪财经",
+            "score": 60,
+            "level": "C"
+        },
+        {
+            "source": "新华网",
+            "score": 95,
+            "level": "A"
+        },
+        {
+            "source": "zaobao.com.sg",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "TRT中文",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "新华网",
+            "score": 95,
+            "level": "A"
+        },
+        {
+            "source": "cztv.com",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "中青在线",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "21财经",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "stcn.com",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "user.guancha.cn",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "新华网",
+            "score": 95,
+            "level": "A"
+        },
+        {
+            "source": "新浪财经",
+            "score": 60,
+            "level": "C"
+        },
+        {
+            "source": "stcn.com",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "zaobao.com.sg",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "user.guancha.cn",
+            "score": 40,
+            "level": "D"
+        },
+        {
+            "source": "e南洋",
+            "score": 40,
+            "level": "D"
+        }
+    ]
+}

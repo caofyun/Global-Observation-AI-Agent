@@ -1,0 +1,151 @@
+{
+    "新华社": {
+        "aliases": [
+            "新华网",
+            "xinhuanet.com",
+            "news.cn"
+        ],
+        "level": "A",
+        "score": 95,
+        "category": "国家通讯社"
+    },
+
+
+    "中国新闻网": {
+        "aliases": [
+            "chinanews.com.cn",
+            "中国新闻网"
+        ],
+        "level": "A",
+        "score": 85,
+        "category": "中央新闻机构"
+    },
+
+
+    "路透社": {
+        "aliases": [
+            "reuters.com",
+            "Reuters"
+        ],
+        "level": "A",
+        "score": 95,
+        "category": "国际通讯社"
+    },
+
+
+    "美联社": {
+        "aliases": [
+            "apnews.com",
+            "Associated Press",
+            "AP"
+        ],
+        "level": "A",
+        "score": 95,
+        "category": "国际通讯社"
+    },
+
+
+    "BBC": {
+        "aliases": [
+            "bbc.com",
+            "bbc.co.uk"
+        ],
+        "level": "A",
+        "score": 90,
+        "category": "国际媒体"
+    },
+
+
+    "半岛电视台": {
+        "aliases": [
+            "aljazeera.com"
+        ],
+        "level": "B",
+        "score": 80,
+        "category": "国际媒体"
+    },
+
+
+    "央视新闻": {
+        "aliases": [
+            "央视",
+            "cctv.com"
+        ],
+        "level": "A",
+        "score": 90,
+        "category": "国家媒体"
+    },
+
+
+    "环球时报": {
+        "aliases": [
+            "globaltimes.cn"
+        ],
+        "level": "B",
+        "score": 75,
+        "category": "国际新闻媒体"
+    },
+
+
+    "新加坡联合早报": {
+        "aliases": [
+            "zaobao.com.sg",
+            "联合早报"
+        ],
+        "level": "B",
+        "score": 75,
+        "category": "华文国际媒体"
+    },
+
+
+    "新浪财经": {
+        "aliases": [
+            "新浪财经"
+        ],
+        "level": "C",
+        "score": 60,
+        "category": "财经媒体"
+    },
+
+
+    "新浪新闻": {
+        "aliases": [
+            "新浪新闻",
+            "sina.com.cn"
+        ],
+        "level": "C",
+        "score": 60,
+        "category": "综合门户媒体"
+    },
+
+
+    "观察者网": {
+        "aliases": [
+            "guancha.cn",
+            "user.guancha.cn",
+            "观察者网"
+        ],
+        "level": "C",
+        "score": 55,
+        "category": "评论型媒体"
+    },
+
+
+    "21财经": {
+        "aliases": [
+            "21jingji.com",
+            "21财经"
+        ],
+        "level": "C",
+        "score": 55,
+        "category": "财经媒体"
+    },
+
+
+    "未知来源": {
+        "aliases": [],
+        "level": "D",
+        "score": 30,
+        "category": "未知来源"
+    }
+}
