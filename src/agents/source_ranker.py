@@ -9,19 +9,18 @@ from src.agents.base_agent import BaseAgent
 # 环球观察速递
 # SourceRanker V2.0
 #
-# 新闻来源评级Agent
+# 新闻来源评级 Agent
 #
-# 功能：
+# V2.0冻结实现：
 #
-# 1. 读取verification.json
-# 2. 提取新闻来源
-# 3. 来源去重
-# 4. 读取来源数据库
-# 5. 来源等级评级
-# 6. 计算来源质量分
-# 7. 判断来源结构
-# 8. 输出风险提示
-# 9. 生成source_rank.json
+# 输入：
+# project_path/02_事实核验/verification.json
+#
+# 输出：
+# project_path/03_来源评级/source_rank.json
+#
+# 职责：
+# 新闻来源质量评级
 #
 # ==========================================
 
@@ -33,12 +32,12 @@ class SourceRanker(BaseAgent):
     # 初始化
     # ======================================
 
-    def __init__(self):
+    def __init__(self, project_path=None):
 
         super().__init__(
-            "新闻来源评级Agent V2.0"
+            "SourceRanker",
+            project_path
         )
-
 
         self.source_database = (
             self.load_source_database()
@@ -54,17 +53,13 @@ class SourceRanker(BaseAgent):
         config_path = os.path.join(
 
             "src",
-
             "config",
-
             "source_database.json"
 
         )
 
 
-        if not os.path.exists(
-            config_path
-        ):
+        if not os.path.exists(config_path):
 
             return {}
 
@@ -72,13 +67,9 @@ class SourceRanker(BaseAgent):
         try:
 
             with open(
-
                 config_path,
-
                 "r",
-
                 encoding="utf-8"
-
             ) as f:
 
                 return json.load(f)
@@ -86,20 +77,15 @@ class SourceRanker(BaseAgent):
 
         except Exception:
 
-
             return {}
 
 
 
     # ======================================
-    # 标准化来源名称
+    # 来源名称标准化
     # ======================================
 
-    def normalize_source(
-        self,
-        source
-    ):
-
+    def normalize_source(self, source):
 
         return str(
             source
@@ -108,14 +94,10 @@ class SourceRanker(BaseAgent):
 
 
     # ======================================
-    # 获取来源评级
+    # 获取来源信息
     # ======================================
 
-    def get_source_info(
-        self,
-        source
-    ):
-
+    def get_source_info(self, source):
 
         source = self.normalize_source(
             source
@@ -138,40 +120,36 @@ class SourceRanker(BaseAgent):
                 return info
 
 
-
         # 默认来源
 
         return {
 
-            "level":"D",
+            "level": "D",
 
-            "score":40,
+            "score": 40,
 
-            "type":"未知来源"
+            "type": "未知来源"
 
         }
 
 
 
     # ======================================
-    # 来源分析
+    # 来源去重
     # ======================================
 
-    def analyze_sources(
-        self,
-        results
-    ):
+    def analyze_sources(self, articles):
 
 
         source_map = {}
 
 
-        for item in results:
+        for article in articles:
 
 
             source = self.normalize_source(
 
-                item.get(
+                article.get(
                     "source",
                     ""
                 )
@@ -190,11 +168,9 @@ class SourceRanker(BaseAgent):
 
                 source_map[source] = {
 
+                    "source_name": source,
 
-                    "source":source,
-
-
-                    "count":1
+                    "count": 1
 
                 }
 
@@ -213,133 +189,57 @@ class SourceRanker(BaseAgent):
 
 
     # ======================================
-    # 来源评分
+    # 计算验证评分
+    #
+    # 基于：
+    # - 来源数量
+    # - 交叉情况
+    #
     # ======================================
 
-    def calculate_quality_score(
+    def calculate_verification_score(
         self,
-        source_details
+        count
     ):
 
 
-        if not source_details:
+        if count >= 5:
 
-            return 0
-
-
-
-        total_score = 0
+            return 100
 
 
-        level_count = {
+        elif count >= 3:
+
+            return 85
 
 
-            "A":0,
+        elif count >= 2:
 
-            "B":0,
-
-            "C":0,
-
-            "D":0
-
-        }
+            return 70
 
 
+        else:
 
-        for item in source_details:
-
-
-            info = item.get(
-                "info",
-                {}
-            )
-
-
-            score = info.get(
-
-                "score",
-
-                40
-
-            )
-
-
-            level = info.get(
-
-                "level",
-
-                "D"
-
-            )
-
-
-            level_count[level] += 1
-
-
-
-            total_score += score
-
-
-
-        # 平均来源质量
-
-        average = (
-
-            total_score /
-            len(source_details)
-
-        )
-
-
-
-        # 独立来源奖励
-
-        diversity_bonus = min(
-
-            len(source_details) * 2,
-
-            20
-
-        )
-
-
-
-        final_score = int(
-
-            average * 0.8
-            +
-            diversity_bonus
-
-        )
-
-
-
-        return min(
-
-            final_score,
-
-            100
-
-        )
+            return 50
 
 
 
     # ======================================
-    # 综合等级
+    # 来源等级转换
     # ======================================
 
-    def get_quality_level(
+    def convert_rank(
         self,
-        score
+        credibility_score
     ):
 
 
-        if score >= 80:
+        if credibility_score >= 85:
 
             return "HIGH"
 
 
-        elif score >= 60:
+        elif credibility_score >= 60:
 
             return "MEDIUM"
 
@@ -351,63 +251,55 @@ class SourceRanker(BaseAgent):
 
 
     # ======================================
-    # 风险分析
+    # 生成评级原因
     # ======================================
 
-    def generate_warnings(
+    def build_reason(
         self,
-        level_count
+        source_info,
+        verification_score
     ):
 
 
-        warnings = []
+        reasons = []
 
 
+        level = source_info.get(
+            "level",
+            "D"
+        )
 
-        if level_count.get(
-            "A",
-            0
-        ) == 0:
 
+        if level in ["A", "B"]:
 
-            warnings.append(
-
-                "缺少A级权威来源确认"
-
+            reasons.append(
+                "来源历史可信度较高"
             )
 
 
+        else:
 
-        if level_count.get(
-            "D",
-            0
-        ) >= 5:
-
-
-            warnings.append(
-
-                "大量来源质量较低，需要进一步核验"
-
+            reasons.append(
+                "来源可信度有限"
             )
 
 
+        if verification_score >= 70:
 
-        if (
-            level_count.get("A",0)
-            +
-            level_count.get("B",0)
-        ) < 2:
+            reasons.append(
+                "存在多来源交叉信息"
+            )
 
+        else:
 
-            warnings.append(
-
-                "缺少多类型高质量来源交叉验证"
-
+            reasons.append(
+                "交叉验证不足"
             )
 
 
-
-        return warnings
+        return "；".join(
+            reasons
+        )
 
 
 
@@ -417,35 +309,47 @@ class SourceRanker(BaseAgent):
 
     def execute(
         self,
-        input_data
+        input_data=None
     ):
 
 
-        if isinstance(
-            input_data,
-            str
-        ):
+        # ----------------------------------
+        # 获取系统context
+        # ----------------------------------
+
+        project_path = self.project_path
 
 
-            verification_path = input_data
+        if not project_path:
 
-
-        else:
-
-
-            verification_path = input_data.get(
-
-                "verification_path"
-
+            raise ValueError(
+                "缺少project_path"
             )
 
 
 
-        if not verification_path:
+        # ----------------------------------
+        # 读取verification.json
+        # ----------------------------------
 
-            raise ValueError(
+        verification_path = os.path.join(
 
-                "缺少verification_path"
+            project_path,
+
+            "02_事实核验",
+
+            "verification.json"
+
+        )
+
+
+        if not os.path.exists(
+            verification_path
+        ):
+
+            raise FileNotFoundError(
+
+                "未找到verification.json"
 
             )
 
@@ -461,12 +365,11 @@ class SourceRanker(BaseAgent):
 
         ) as f:
 
-
-            data = json.load(f)
-
+            verification_data = json.load(f)
 
 
-        topic = data.get(
+
+        topic = verification_data.get(
 
             "topic",
 
@@ -475,9 +378,18 @@ class SourceRanker(BaseAgent):
         )
 
 
-        results = data.get(
+        articles = verification_data.get(
 
-            "results",
+            "articles",
+
+            []
+
+        )
+
+
+        sources_input = verification_data.get(
+
+            "sources",
 
             []
 
@@ -485,146 +397,202 @@ class SourceRanker(BaseAgent):
 
 
 
-        print()
+        # ----------------------------------
+        # 来源分析
+        # ----------------------------------
 
-        print(
-            "=============================="
-        )
+        article_sources = self.analyze_sources(
 
-        print(
-            "SourceRanker V2.0"
-        )
-
-        print(
-            "=============================="
-        )
-
-
-
-        # 来源去重
-
-        unique_sources = self.analyze_sources(
-
-            results
+            articles
 
         )
 
 
 
-        source_details = []
+        # 如果verification已有sources
+        # 合并
+
+        existing_sources = []
+
+
+        for item in sources_input:
+
+            if isinstance(item, dict):
+
+                name = item.get(
+                    "source",
+                    ""
+                )
+
+            else:
+
+                name = item
+
+
+            if name:
+
+                existing_sources.append({
+
+                    "source_name":
+                        self.normalize_source(name),
+
+                    "count":
+                        1
+
+                })
 
 
 
-        level_count = {
-
-
-            "A":0,
-
-            "B":0,
-
-            "C":0,
-
-            "D":0
-
-        }
+        all_sources = article_sources + existing_sources
 
 
 
-        for item in unique_sources:
+        # 去重
+
+        merged = {}
+
+
+        for item in all_sources:
+
+
+            name = item["source_name"]
+
+
+            if name not in merged:
+
+                merged[name] = {
+
+                    "source_name":
+                        name,
+
+                    "count":
+                        item.get(
+                            "count",
+                            1
+                        )
+
+                }
+
+            else:
+
+                merged[name]["count"] += item.get(
+                    "count",
+                    1
+                )
+
+
+
+        source_results = []
+
+
+        index = 1
+
+
+        for item in merged.values():
+
+
+            source_name = item["source_name"]
 
 
             info = self.get_source_info(
 
-                item["source"]
+                source_name
 
             )
 
 
-            level = info.get(
+            credibility_score = info.get(
 
-                "level",
+                "score",
 
-                "D"
+                40
 
             )
 
 
-            level_count[level] += 1
+            verification_score = self.calculate_verification_score(
+
+                item["count"]
+
+            )
 
 
+            rank = self.convert_rank(
 
-            source_details.append({
+                credibility_score
 
-
-                "source":
-                    item["source"],
-
-
-                "count":
-                    item["count"],
+            )
 
 
-                "level":
-                    level,
+            source_results.append({
+
+                "source_id":
+                    f"source_{index}",
 
 
-                "score":
-                    info.get(
-                        "score",
-                        40
-                    ),
+                "source_name":
+                    source_name,
 
 
-                "type":
+                "source_type":
                     info.get(
                         "type",
                         "未知"
-                    )
+                    ),
 
+
+                "credibility_score":
+                    credibility_score,
+
+
+                "verification_score":
+                    verification_score,
+
+
+                "source_rank":
+                    rank,
+
+
+                "reason":
+                    self.build_reason(
+                        info,
+                        verification_score
+                    )
 
             })
 
 
+            index += 1
 
-        quality_score = (
 
-            self.calculate_quality_score(
 
-                [
+        # ----------------------------------
+        # 输出source_rank.json
+        # ----------------------------------
 
-                    {
-                        "info":
-                        self.get_source_info(
-                            x["source"]
-                        )
+        output_dir = os.path.join(
 
-                    }
+            project_path,
 
-                    for x in unique_sources
-
-                ]
-
-            )
+            "03_来源评级"
 
         )
 
 
+        os.makedirs(
 
-        quality_level = (
+            output_dir,
 
-            self.get_quality_level(
-
-                quality_score
-
-            )
+            exist_ok=True
 
         )
 
 
+        output_path = os.path.join(
 
-        warnings = self.generate_warnings(
+            output_dir,
 
-            level_count
+            "source_rank.json"
 
         )
 
@@ -632,79 +600,17 @@ class SourceRanker(BaseAgent):
 
         result = {
 
-
             "topic":
 
                 topic,
 
 
-            "total_sources":
-
-                len(results),
-
-
-
-            "unique_sources":
-
-                len(unique_sources),
-
-
-
-            "level_statistics":
-
-                level_count,
-
-
-
-            "quality_score":
-
-                quality_score,
-
-
-
-            "quality_level":
-
-                quality_level,
-
-
-
             "sources":
 
-                source_details,
-
-
-
-            "warnings":
-
-                warnings
-
+                source_results
 
         }
 
-
-
-        # 保存文件
-
-        project_path = os.path.dirname(
-
-            os.path.dirname(
-
-                verification_path
-
-            )
-
-        )
-
-
-        output_path = os.path.join(
-
-            project_path,
-
-            "01_新闻资料",
-
-            "source_rank.json"
-
-        )
 
 
         with open(
@@ -733,48 +639,18 @@ class SourceRanker(BaseAgent):
 
 
         print()
+        print("==============================")
+        print("SourceRanker V2.0完成")
+        print("==============================")
 
         print(
-            "=============================="
+            f"评级来源数量：{len(source_results)}"
         )
 
         print(
-            "SourceRanker V2.0完成"
-        )
-
-        print(
-            "=============================="
-        )
-
-
-        print(
-
-            f"独立来源:{len(unique_sources)}"
-
-        )
-
-
-        print(
-
-            f"质量评分:{quality_score}"
-
-        )
-
-
-        print(
-
-            f"综合等级:{quality_level}"
-
-        )
-
-
-        print()
-
-        print(
-
             "source_rank.json生成成功"
-
         )
+
 
 
         return result
