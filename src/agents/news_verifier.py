@@ -48,7 +48,7 @@ class NewsVerifier(BaseAgent):
     def __init__(self):
 
         super().__init__(
-            "新闻事实核验Agent V2.0"
+            "NewsVerifier"
         )
 
         # ======================================
@@ -1029,17 +1029,17 @@ JSON格式：
 
             return None
 
-        news_folder = os.path.join(
+        verification_folder = os.path.join(
 
             project_path,
 
-            "01_新闻资料"
+            "02_事实核验"
 
         )
 
         os.makedirs(
 
-            news_folder,
+            verification_folder,
 
             exist_ok=True
 
@@ -1047,7 +1047,7 @@ JSON格式：
 
         ai_verification_path = os.path.join(
 
-            news_folder,
+            verification_folder,
 
             "ai_verification.json"
 
@@ -1093,65 +1093,31 @@ JSON格式：
     def execute(self, input_data):
 
         # ======================================
-        # 读取输入
+        # 读取统一上下文和业务输入
         # ======================================
 
-        if isinstance(
-            input_data,
-            dict
-        ):
-
-            project_path = input_data.get(
-                "project_path"
-            )
-
-            search_results_path = input_data.get(
-                "search_results_path"
-            )
-
+        if isinstance(input_data, dict):
+            project_path = input_data.get("project_path")
+            topic_keyword = str(input_data.get("topic_keyword", "")).strip()
         else:
+            project_path = str(input_data).strip() if input_data else None
+            topic_keyword = ""
 
-            project_path = str(
-                input_data
-            ).strip()
+        if not project_path:
+            project_path = getattr(self, "project_path", None)
 
-            search_results_path = None
+        if not project_path:
+            raise ValueError("必须提供project_path")
 
-        # ======================================
-        # 自动寻找search_results.json
-        # ======================================
+        news_articles_path = os.path.join(
+            project_path,
+            "01_新闻资料",
+            "news_articles.json"
+        )
 
-        if not search_results_path:
-
-            if not project_path:
-
-                raise ValueError(
-                    "必须提供project_path"
-                )
-
-            search_results_path = os.path.join(
-
-                project_path,
-
-                "01_新闻资料",
-
-                "search_results.json"
-
-            )
-
-        # ======================================
-        # 检查文件
-        # ======================================
-
-        if not os.path.exists(
-            search_results_path
-        ):
-
+        if not os.path.exists(news_articles_path):
             raise FileNotFoundError(
-
-                "找不到search_results.json："
-                + search_results_path
-
+                "找不到news_articles.json：" + news_articles_path
             )
 
         print()
@@ -1159,358 +1125,156 @@ JSON格式：
         print("NewsVerifier V2.0")
         print("==============================")
 
-        print(
-            "正在读取："
-        )
-
-        print(
-            search_results_path
-        )
-
-        # ======================================
-        # 读取JSON
-        # ======================================
+        print("正在读取：")
+        print(news_articles_path)
 
         with open(
-
-            search_results_path,
-
+            news_articles_path,
             "r",
-
             encoding="utf-8"
-
         ) as f:
+            news_data = json.load(f)
 
-            news_data = json.load(
-                f
-            )
-
-        topic = news_data.get(
-            "topic",
-            ""
+        topic = (
+            topic_keyword
+            or str(news_data.get("topic", "")).strip()
+            or "未知主题"
         )
 
-        search_results = news_data.get(
-            "search_results",
-            []
-        )
+        articles_payload = news_data.get("articles", [])
+
+        if not isinstance(articles_payload, list):
+            raise ValueError("news_articles.json 的 articles 必须为数组")
 
         # ======================================
-        # 基础检查
+        # 正文数据流处理
         # ======================================
 
-        valid_results = []
+        normalized_articles = []
+        source_set = set()
+        facts = []
+        conflicts = []
+        uncertainties = []
 
-        invalid_results = []
+        for index, article in enumerate(articles_payload, start=1):
+            if not isinstance(article, dict):
+                continue
 
-        for result in search_results:
-
-            title = str(
-                result.get(
-                    "title",
-                    ""
-                )
-            ).strip()
-
-            url = str(
-                result.get(
-                    "url",
-                    ""
-                )
-            ).strip()
-
-            source = self.identify_source(
-                result
-            )
+            article_id = str(article.get("article_id", "")).strip() or f"article_{index}"
+            title = str(article.get("title", "")).strip()
+            source = str(article.get("source", "")).strip() or self.identify_source(article)
+            url = str(article.get("url", "")).strip()
+            published_time = str(article.get("published_time", "")).strip()
+            content = str(article.get("content", "")).strip()
+            summary = str(article.get("summary", "")).strip()
+            source_id = "source_" + str(index)
 
             if not title:
-
-                invalid_results.append(
-                    result
-                )
-
                 continue
 
-            valid_results.append({
-
+            normalized_articles.append({
+                "article_id": article_id,
+                "source_id": source_id,
                 "title": title,
-
                 "source": source,
-
-                "published_time":
-                    result.get(
-                        "published_time",
-                        ""
-                    ),
-
-                "url": url
-
+                "url": url,
+                "published_time": published_time,
+                "content": content,
+                "summary": summary
             })
 
-        # ======================================
-        # 标题去重
-        # ======================================
+            if source:
+                source_set.add(source)
 
-        unique_results = []
+            if summary:
+                facts.append(summary)
 
-        seen_titles = set()
+        source_list = list(source_set)
+        source_count = len(source_list)
 
-        for result in valid_results:
-
-            normalized_title = (
-                self.normalize_title(
-                    result["title"]
-                )
-            )
-
-            if normalized_title in seen_titles:
-
-                continue
-
-            seen_titles.add(
-                normalized_title
-            )
-
-            unique_results.append(
-                result
-            )
-
-        # ======================================
-        # 来源统计
-        # ======================================
-
-        source_counts = {}
-
-        for result in unique_results:
-
-            source = result[
-                "source"
-            ]
-
-            if source not in source_counts:
-
-                source_counts[source] = 0
-
-            source_counts[source] += 1
-
-        # ======================================
-        # 根据来源数量给出基础状态
-        #
-        # 注意：
-        # 这不是“真实性判断”
-        # ======================================
-
-        unique_source_count = len(
-            source_counts
-        )
-
-        if unique_source_count >= 3:
-
-            verification_status = (
-                "MULTIPLE_SOURCES_FOUND"
-            )
-
-        elif unique_source_count == 2:
-
-            verification_status = (
-                "TWO_SOURCES_FOUND"
-            )
-
-        elif unique_source_count == 1:
-
-            verification_status = (
-                "SINGLE_SOURCE_FOUND"
-            )
-
+        if source_count >= 3:
+            verification_status = "MULTIPLE_SOURCES_FOUND"
+            confidence = "HIGH"
+        elif source_count == 2:
+            verification_status = "TWO_SOURCES_FOUND"
+            confidence = "MEDIUM"
+        elif source_count == 1:
+            verification_status = "SINGLE_SOURCE_FOUND"
+            confidence = "LOW"
         else:
+            verification_status = "NO_VALID_SOURCE"
+            confidence = "LOW"
 
-            verification_status = (
-                "NO_VALID_SOURCE"
-            )
-
-        # ======================================
-        # 创建基础核验结果
-        # ======================================
-
-        verification_data = {
-
+        working_data = {
             "topic": topic,
-
-            "status":
-                verification_status,
-
-            "total_search_results":
-                len(search_results),
-
-            "valid_results":
-                len(valid_results),
-
-            "unique_results":
-                len(unique_results),
-
-            "source_count":
-                unique_source_count,
-
-            "source_counts":
-                source_counts,
-
-            "results":
-                unique_results,
-
-            "invalid_results":
-                invalid_results,
-
-            "facts": [],
-
-            "claims": [],
-
-            "conflicts": [],
-
-            "uncertainties": [],
-
-            "verification_notes": [
-
-                "V2.0进行基础来源整理和去重",
-
-                "V2.0增加AI辅助事实分析",
-
-                "AI分析不代表新闻事实已经确认",
-
-                "最终事实判断需要人工审核"
-
-            ]
-
+            "results": normalized_articles,
+            "articles": normalized_articles,
+            "sources": source_list,
+            "facts": facts,
+            "conflicts": conflicts,
+            "uncertainties": uncertainties,
+            "verification_status": verification_status,
+            "confidence": confidence
         }
 
-        # ======================================
-        # 保存verification.json
-        # ======================================
+        verification_data = {
+            "topic": topic,
+            "articles": normalized_articles,
+            "sources": source_list,
+            "facts": facts,
+            "conflicts": conflicts,
+            "uncertainties": uncertainties,
+            "verification_status": verification_status,
+            "confidence": confidence
+        }
 
-        if project_path:
-
-            news_folder = os.path.join(
-
-                project_path,
-
-                "01_新闻资料"
-
-            )
-
-            os.makedirs(
-
-                news_folder,
-
-                exist_ok=True
-
-            )
-
-            verification_path = os.path.join(
-
-                news_folder,
-
-                "verification.json"
-
-            )
-
-            with open(
-
-                verification_path,
-
-                "w",
-
-                encoding="utf-8"
-
-            ) as f:
-
-                json.dump(
-
-                    verification_data,
-
-                    f,
-
-                    ensure_ascii=False,
-
-                    indent=4
-
-                )
-
-            print()
-            print(
-                "核验结果已保存："
-            )
-
-            print(
-                verification_path
-            )
-
-        # ======================================
-        # V2.0 AI事实分析
-        # ======================================
-
-        ai_verification_data = (
-            self.analyze_with_ai(
-                verification_data
-            )
+        verification_folder = os.path.join(
+            project_path,
+            "02_事实核验"
         )
 
-        # ======================================
-        # 给AI结果补充主题
-        # ======================================
-
-        ai_verification_data["topic"] = (
-            topic
+        os.makedirs(
+            verification_folder,
+            exist_ok=True
         )
 
-        # ======================================
-        # 保存ai_verification.json
-        # ======================================
+        verification_path = os.path.join(
+            verification_folder,
+            "verification.json"
+        )
+
+        with open(
+            verification_path,
+            "w",
+            encoding="utf-8"
+        ) as f:
+            json.dump(
+                verification_data,
+                f,
+                ensure_ascii=False,
+                indent=4
+            )
+
+        print()
+        print("核验结果已保存：")
+        print(verification_path)
+
+        ai_verification_data = self.analyze_with_ai(working_data)
+        ai_verification_data["topic"] = topic
 
         self.save_ai_verification(
-
             project_path,
-
             ai_verification_data
-
         )
-
-        # ======================================
-        # 输出统计
-        # ======================================
 
         print()
         print("==============================")
         print("NewsVerifier V2.0完成")
         print("==============================")
 
-        print(
-            f"原始搜索结果：{len(search_results)} 条"
-        )
-
-        print(
-            f"有效结果：{len(valid_results)} 条"
-        )
-
-        print(
-            f"去重后结果：{len(unique_results)} 条"
-        )
-
-        print(
-            f"发现来源：{unique_source_count} 个"
-        )
-
-        print(
-            f"基础状态：{verification_status}"
-        )
-
-        print(
-            "AI核验结果："
-        )
-
-        print(
-            ai_verification_data.get(
-                "status",
-                ""
-            )
-        )
+        print(f"正文文章：{len(normalized_articles)} 篇")
+        print(f"发现来源：{source_count} 个")
+        print(f"核验状态：{verification_status}")
+        print(f"置信度：{confidence}")
 
         return verification_data
