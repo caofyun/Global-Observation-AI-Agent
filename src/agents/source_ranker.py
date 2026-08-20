@@ -7,7 +7,7 @@ from src.agents.base_agent import BaseAgent
 
 # ==========================================
 # 环球观察速递
-# NewsSourceRanker V2.0
+# SourceRanker V2.0
 #
 # 新闻来源评级Agent
 #
@@ -26,7 +26,7 @@ from src.agents.base_agent import BaseAgent
 # ==========================================
 
 
-class NewsSourceRanker(BaseAgent):
+class SourceRanker(BaseAgent):
 
 
     # ======================================
@@ -492,7 +492,7 @@ class NewsSourceRanker(BaseAgent):
         )
 
         print(
-            "NewsSourceRanker V2.0"
+            "SourceRanker V2.0"
         )
 
         print(
@@ -739,7 +739,7 @@ class NewsSourceRanker(BaseAgent):
         )
 
         print(
-            "NewsSourceRanker V2.0完成"
+            "SourceRanker V2.0完成"
         )
 
         print(

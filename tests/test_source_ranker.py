@@ -9,7 +9,7 @@ sys.path.append(
 )
 
 
-from src.agents.source_ranker import NewsSourceRanker
+from src.agents.source_ranker import SourceRanker
 
 
 
@@ -19,7 +19,7 @@ project_path=input(
 
 
 
-agent=NewsSourceRanker()
+agent=SourceRanker()
 
 
 
