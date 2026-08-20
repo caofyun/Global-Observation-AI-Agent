@@ -1,4 +1,4 @@
-from src.agents.base_agent import BaseAgent
+﻿from src.agents.base_agent import BaseAgent
 from src.utils.search_tool import SearchTool
 
 import json
@@ -7,15 +7,16 @@ import os
 
 # ==========================================
 # 环球观察速递
-# NewsAgent 新闻研究智能体 V2.0
+# NewsAgent 新闻发现与正文采集 Agent V2.0
 #
 # 功能：
-# 1. 接收新闻选题
+# 1. 接收新闻主题关键词
 # 2. 自动生成搜索关键词
 # 3. 调用 SearchTool
 # 4. 汇总搜索结果
 # 5. 自动去重
 # 6. 保存 search_results.json
+# 7. 生成 news_articles.json
 # ==========================================
 
 
@@ -25,102 +26,137 @@ class NewsAgent(BaseAgent):
     # 初始化
     # ==========================================
 
-    def __init__(self):
+    def __init__(self, project_path=None):
 
         super().__init__(
-            "新闻研究Agent"
+            "NewsAgent",
+            project_path
         )
 
-        # 初始化搜索工具
         self.search_tool = SearchTool()
 
     # ==========================================
     # 生成搜索关键词
     # ==========================================
 
-    def build_search_keywords(self, topic):
+    def build_search_keywords(self, topic_keyword):
+
+        topic_keyword = str(
+            topic_keyword
+        ).strip()
+
+        if not topic_keyword:
+
+            return []
 
         keywords = [
-
-            topic,
-
-            f"{topic} 最新消息",
-
-            f"{topic} news"
-
+            topic_keyword,
+            f"{topic_keyword} 最新消息",
+            f"{topic_keyword} news"
         ]
 
         return keywords
 
     # ==========================================
-    # 新闻研究执行逻辑
+    # 规范搜索结果字段
+    # ==========================================
+
+    def _normalize_search_result(self, result, index):
+
+        return {
+            "result_id": result.get("result_id") or f"result_{index + 1}",
+            "title": str(result.get("title", "")).strip(),
+            "url": str(result.get("url", "")).strip(),
+            "source": str(result.get("source", "")).strip(),
+            "published_time": str(result.get("published_time", "")).strip(),
+            "snippet": str(result.get("snippet", "")).strip()
+        }
+
+    # ==========================================
+    # 规范正文文章字段
+    # ==========================================
+
+    def _normalize_article(self, result, index):
+
+        title = str(result.get("title", "")).strip()
+        source = str(result.get("source", "")).strip()
+        url = str(result.get("url", "")).strip()
+        published_time = str(result.get("published_time", "")).strip()
+
+        content = (
+            str(result.get("content", "")).strip()
+            or str(result.get("snippet", "")).strip()
+            or str(result.get("description", "")).strip()
+        )
+
+        if not content and title:
+            content = title
+
+        summary = str(result.get("summary", "")).strip()
+
+        if not summary and content:
+            if len(content) > 180:
+                summary = content[:177] + "..."
+            else:
+                summary = content
+
+        return {
+            "article_id": f"article_{index + 1}",
+            "title": title,
+            "source": source,
+            "url": url,
+            "published_time": published_time,
+            "content": content,
+            "summary": summary
+        }
+
+    # ==========================================
+    # 新闻发现与正文采集执行逻辑
     # ==========================================
 
     def execute(self, input_data):
 
         # ======================================
-        # 读取输入
+        # 读取业务输入
         # ======================================
 
-        if isinstance(
-            input_data,
-            dict
-        ):
-
-            topic = str(
+        if isinstance(input_data, dict):
+            topic_keyword = str(
                 input_data.get(
-                    "topic",
+                    "topic_keyword",
                     ""
                 )
             ).strip()
-
-            project_path = input_data.get(
-                "project_path"
-            )
-
         else:
+            topic_keyword = str(input_data).strip()
 
-            topic = str(
-                input_data
-            ).strip()
-
-            project_path = None
+        project_path = getattr(self, "project_path", None)
 
         # ======================================
-        # 检查新闻选题
+        # 检查主题关键词
         # ======================================
 
-        if not topic:
-
-            raise ValueError(
-                "新闻选题不能为空"
-            )
+        if not topic_keyword:
+            raise ValueError("topic_keyword 不能为空")
 
         # ======================================
         # 生成搜索关键词
         # ======================================
 
-        keywords = self.build_search_keywords(
-            topic
-        )
+        keywords = self.build_search_keywords(topic_keyword)
 
         print()
         print("==============================")
         print("NewsAgent V2.0")
         print("==============================")
 
-        print(
-            f"新闻选题：{topic}"
-        )
+        print(f"研究主题：{topic_keyword}")
 
         print()
         print("自动生成搜索关键词：")
 
         for keyword in keywords:
-
-            print(
-                f" - {keyword}"
-            )
+            print(f" - {keyword}")
 
         # ======================================
         # 执行新闻搜索
@@ -129,155 +165,110 @@ class NewsAgent(BaseAgent):
         all_results = []
 
         for keyword in keywords:
-
             print()
-            print(
-                f"正在搜索：{keyword}"
-            )
+            print(f"正在搜索：{keyword}")
 
             results = self.search_tool.search(
                 keyword,
                 max_results=10
             )
 
-            all_results.extend(
-                results
-            )
+            all_results.extend(results)
 
         # ======================================
         # 搜索结果去重
         # ======================================
 
         unique_results = []
-
         seen_urls = set()
-
         seen_titles = set()
 
         for result in all_results:
+            url = str(result.get("url", "")).strip()
+            title = str(result.get("title", "")).strip()
 
-            url = result.get(
-                "url",
-                ""
-            ).strip()
-
-            title = result.get(
-                "title",
-                ""
-            ).strip()
-
-            # 优先按照URL去重
             if url and url in seen_urls:
-
                 continue
 
-            # 没有URL时按照标题去重
             if not url and title in seen_titles:
-
                 continue
 
             if url:
-
-                seen_urls.add(
-                    url
-                )
+                seen_urls.add(url)
 
             if title:
-
-                seen_titles.add(
-                    title
-                )
+                seen_titles.add(title)
 
             unique_results.append(
-                result
+                self._normalize_search_result(result, len(unique_results))
             )
 
         # ======================================
-        # 创建新闻研究数据
+        # 正文采集结果
         # ======================================
 
-        news_data = {
+        articles = []
 
-            "topic": topic,
-
-            "status": "SEARCHED",
-
-            "search_keywords": keywords,
-
-            "search_results": unique_results,
-
-            "facts": [],
-
-            "sources": [],
-
-            "statements": [],
-
-            "uncertainties": [],
-
-            "research_notes": []
-
-        }
+        for index, result in enumerate(unique_results):
+            articles.append(
+                self._normalize_article(result, index)
+            )
 
         # ======================================
-        # 保存搜索结果
+        # 保存结果文件
         # ======================================
 
         if project_path:
-
             news_folder = os.path.join(
-
                 project_path,
-
                 "01_新闻资料"
-
             )
 
             os.makedirs(
-
                 news_folder,
-
                 exist_ok=True
-
             )
 
-            json_path = os.path.join(
-
+            search_results_path = os.path.join(
                 news_folder,
-
                 "search_results.json"
-
             )
 
             with open(
-
-                json_path,
-
+                search_results_path,
                 "w",
-
                 encoding="utf-8"
-
             ) as f:
-
                 json.dump(
-
-                    news_data,
-
+                    unique_results,
                     f,
-
                     ensure_ascii=False,
-
                     indent=4
+                )
 
+            news_articles_path = os.path.join(
+                news_folder,
+                "news_articles.json"
+            )
+
+            with open(
+                news_articles_path,
+                "w",
+                encoding="utf-8"
+            ) as f:
+                json.dump(
+                    {"articles": articles},
+                    f,
+                    ensure_ascii=False,
+                    indent=4
                 )
 
             print()
-            print(
-                "搜索结果已保存："
-            )
-
-            print(
-                json_path
-            )
+            print("搜索结果已保存：")
+            print(search_results_path)
+            print()
+            print("正文数据已保存：")
+            print(news_articles_path)
 
         # ======================================
         # 输出统计
@@ -288,16 +279,14 @@ class NewsAgent(BaseAgent):
         print("NewsAgent V2.0 搜索完成")
         print("==============================")
 
-        print(
-            f"搜索关键词：{len(keywords)} 个"
-        )
+        print(f"搜索关键词：{len(keywords)} 个")
+        print(f"原始结果：{len(all_results)} 条")
+        print(f"去重后结果：{len(unique_results)} 条")
+        print(f"正文文章：{len(articles)} 篇")
 
-        print(
-            f"原始结果：{len(all_results)} 条"
-        )
-
-        print(
-            f"去重后结果：{len(unique_results)} 条"
-        )
-
-        return news_data
+        return {
+            "topic_keyword": topic_keyword,
+            "search_keywords": keywords,
+            "search_results": unique_results,
+            "news_articles": articles
+        }

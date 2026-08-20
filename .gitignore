@@ -1,9 +1,7 @@
-# AI API密钥
-.env
-
 # Python缓存
 __pycache__/
 *.pyc
+*.pyo
 
 # Word临时文件
 ~$*.docx
@@ -14,3 +12,12 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+
+# VS Code
+.vscode/
+
+# Test temporary projects
+projects/tmp_*
+
+# Environment
+.env
