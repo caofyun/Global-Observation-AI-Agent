@@ -199,16 +199,14 @@ def test_news_verifier():
     )
 
 
-    verifier = NewsVerifier(
-
-        project_path=PROJECT_ROOT
-
-    )
+    verifier = NewsVerifier()
 
 
     result = verifier.run(
 
-        {}
+        {
+            "project_path": PROJECT_ROOT
+        }
 
     )
 
