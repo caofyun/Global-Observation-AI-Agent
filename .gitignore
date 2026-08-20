@@ -21,3 +21,6 @@ projects/tmp_*
 
 # Environment
 .env
+
+# V2 Pipeline test runtime output
+projects/test_v2_pipeline_project/
