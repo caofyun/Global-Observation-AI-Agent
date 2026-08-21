@@ -1,0 +1,17 @@
+{
+    "status": "AI_API_ERROR",
+    "ai_model": "",
+    "confidence": "LOW",
+    "claims": [],
+    "supporting_evidence": [],
+    "conflicts": [],
+    "uncertainties": [
+        "AI API调用失败"
+    ],
+    "risk_notes": [
+        "暂不支持的AI服务商："
+    ],
+    "ai_summary": "AI事实分析未完成",
+    "human_review_required": true,
+    "topic": "未知主题"
+}

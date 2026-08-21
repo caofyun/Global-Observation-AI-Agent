@@ -1,0 +1,167 @@
+{
+    "topic": "未知主题",
+    "sources": [
+        {
+            "source_id": "source_1",
+            "source_name": "搜狐网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_2",
+            "source_name": "中国日报网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_3",
+            "source_name": "凤凰网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_4",
+            "source_name": "联合早报",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_5",
+            "source_name": "BBC",
+            "source_type": "未知",
+            "credibility_score": 90,
+            "verification_score": 85,
+            "source_rank": "A",
+            "reason": "来源历史可信度较高；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_6",
+            "source_name": "手机新浪网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_7",
+            "source_name": "中华军事",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_8",
+            "source_name": "新华网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_9",
+            "source_name": "东方财富",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_10",
+            "source_name": "同花顺财经",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_11",
+            "source_name": "新浪新闻_手机新浪网",
+            "source_type": "未知",
+            "credibility_score": 60,
+            "verification_score": 85,
+            "source_rank": "C",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_12",
+            "source_name": "Jiemian.com",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_13",
+            "source_name": "每日经济新闻",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_14",
+            "source_name": "上海市人民政府",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_15",
+            "source_name": "finance.sina.com.cn",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_16",
+            "source_name": "美国之音",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_17",
+            "source_name": "大纪元",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_18",
+            "source_name": "RFI",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        }
+    ]
+}

@@ -1,0 +1,47 @@
+{
+    "selected_topic": "中东局势",
+    "decision": "进入制作",
+    "selection_score": 85,
+    "ranking": [
+        {
+            "rank": 1,
+            "topic": "中东局势",
+            "score": 85,
+            "recommendation": "制作"
+        },
+        {
+            "rank": 2,
+            "topic": "美国航母部署",
+            "score": 78,
+            "recommendation": "观望"
+        },
+        {
+            "rank": 3,
+            "topic": "霍尔木兹海峡",
+            "score": 78,
+            "recommendation": "观望"
+        },
+        {
+            "rank": 4,
+            "topic": "俄乌局势",
+            "score": 78,
+            "recommendation": "观望"
+        },
+        {
+            "rank": 5,
+            "topic": "亚太安全",
+            "score": 75,
+            "recommendation": "观望"
+        }
+    ],
+    "reason": [
+        "国际影响力较高",
+        "新闻热度持续",
+        "具有视频表达价值"
+    ],
+    "meta": {
+        "candidate_count": 5,
+        "generated_at": "2026-08-21T13:49:33.786392Z",
+        "version": "TopicSelector v2.0"
+    }
+}

@@ -34,7 +34,9 @@ class TopicSelector(BaseAgent):
                 continue
 
             # basic normalization
-            topic = data.get("topic") or name
+            topic = data.get("topic")
+            if not topic or topic == "未知主题":
+                topic = name.split("_", 1)[-1]
             try:
                 score = float(data.get("score", 0))
             except Exception:

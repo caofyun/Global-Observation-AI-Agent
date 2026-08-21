@@ -1,0 +1,158 @@
+{
+    "topic": "未知主题",
+    "sources": [
+        {
+            "source_id": "source_1",
+            "source_name": "纽约时报中文网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_2",
+            "source_name": "京报网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_3",
+            "source_name": "chinanews.com.cn",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_4",
+            "source_name": "新浪财经",
+            "source_type": "未知",
+            "credibility_score": 60,
+            "verification_score": 85,
+            "source_rank": "C",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_5",
+            "source_name": "新华网客户端",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_6",
+            "source_name": "联合早报",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_7",
+            "source_name": "ciis.org.cn",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_8",
+            "source_name": "华人头条",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_9",
+            "source_name": "BBC",
+            "source_type": "未知",
+            "credibility_score": 90,
+            "verification_score": 70,
+            "source_rank": "A",
+            "reason": "来源历史可信度较高；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_10",
+            "source_name": "QQ News",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_11",
+            "source_name": "早晨报",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_12",
+            "source_name": "新华网",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_13",
+            "source_name": "中美聚焦",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_14",
+            "source_name": "Business Wire",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_15",
+            "source_name": "FedEx newsroom",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_16",
+            "source_name": "清华大学战略与安全研究中心",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 70,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        },
+        {
+            "source_id": "source_17",
+            "source_name": "RFI",
+            "source_type": "未知来源",
+            "credibility_score": 40,
+            "verification_score": 85,
+            "source_rank": "D",
+            "reason": "来源可信度有限；存在多来源交叉信息"
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "topic": "霍尔木兹海峡",
+    "score": 78,
+    "recommendation": "观望",
+    "breakdown": {
+        "international_influence": 72,
+        "news_hotness": 76,
+        "user_interest": 81,
+        "video_potential": 100,
+        "source_quality": 59
+    },
+    "weights": {
+        "international_influence": 0.25,
+        "news_hotness": 0.3,
+        "user_interest": 0.2,
+        "video_potential": 0.15,
+        "source_quality": 0.1
+    },
+    "meta": {
+        "unique_source_count": 18,
+        "earliest_published": "Mon, 03 Aug 2026 07:00:00 GMT",
+        "latest_published": "Fri, 21 Aug 2026 06:37:39 GMT",
+        "top_sources": [
+            "搜狐网",
+            "中国日报网",
+            "凤凰网",
+            "联合早报",
+            "BBC"
+        ],
+        "generated_at": "2026-08-21T13:49:25.281024Z",
+        "version": "TopicScorer v2.0"
+    }
+}

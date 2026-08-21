@@ -1,6 +1,7 @@
 import os
 import json
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 
 from src.agents.base_agent import BaseAgent
 
@@ -116,15 +117,15 @@ class TopicScorer(BaseAgent):
                 t = a.get("published_time")
                 if not t:
                     continue
-                times.append(t)
-            if times:
                 try:
-                    # prefer ISO strings; fall back to raw min/max
-                    meta["earliest_published"] = min(times)
-                    meta["latest_published"] = max(times)
-                except Exception:
-                    meta["earliest_published"] = times[0]
-                    meta["latest_published"] = times[-1]
+                    times.append((parsedate_to_datetime(t), t))
+                except (TypeError, ValueError, IndexError):
+                    continue
+            if times:
+                earliest = min(times, key=lambda item: item[0])
+                latest = max(times, key=lambda item: item[0])
+                meta["earliest_published"] = earliest[1]
+                meta["latest_published"] = latest[1]
 
         return breakdown, meta
 
@@ -156,8 +157,10 @@ class TopicScorer(BaseAgent):
 
         if isinstance(input_data, dict):
             project_path = input_data.get("project_path") or self.project_path
+            input_topic = str(input_data.get("topic", "")).strip()
         else:
             project_path = self.project_path if input_data is None else str(input_data).strip()
+            input_topic = ""
 
         if not project_path:
             raise ValueError("缺少project_path")
@@ -196,7 +199,7 @@ class TopicScorer(BaseAgent):
         recommendation = self.decide_recommendation(final_score, source_quality, verification_data)
 
         result = {
-            "topic": source_rank.get("topic", ""),
+            "topic": input_topic or verification_data.get("topic") or source_rank.get("topic", ""),
             "score": final_score,
             "recommendation": recommendation,
             "breakdown": breakdown,

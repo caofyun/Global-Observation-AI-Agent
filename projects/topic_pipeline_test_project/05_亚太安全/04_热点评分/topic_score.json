@@ -1,0 +1,33 @@
+{
+    "topic": "亚太安全",
+    "score": 75,
+    "recommendation": "观望",
+    "breakdown": {
+        "international_influence": 68,
+        "news_hotness": 72,
+        "user_interest": 78,
+        "video_potential": 100,
+        "source_quality": 60
+    },
+    "weights": {
+        "international_influence": 0.25,
+        "news_hotness": 0.3,
+        "user_interest": 0.2,
+        "video_potential": 0.15,
+        "source_quality": 0.1
+    },
+    "meta": {
+        "unique_source_count": 17,
+        "earliest_published": "Fri, 11 Apr 2025 07:00:00 GMT",
+        "latest_published": "Wed, 05 Aug 2026 08:27:00 GMT",
+        "top_sources": [
+            "纽约时报中文网",
+            "京报网",
+            "chinanews.com.cn",
+            "新浪财经",
+            "新华网客户端"
+        ],
+        "generated_at": "2026-08-21T13:49:33.774201Z",
+        "version": "TopicScorer v2.0"
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "topic": "俄乌局势",
+    "score": 78,
+    "recommendation": "观望",
+    "breakdown": {
+        "international_influence": 72,
+        "news_hotness": 76,
+        "user_interest": 81,
+        "video_potential": 100,
+        "source_quality": 61
+    },
+    "weights": {
+        "international_influence": 0.25,
+        "news_hotness": 0.3,
+        "user_interest": 0.2,
+        "video_potential": 0.15,
+        "source_quality": 0.1
+    },
+    "meta": {
+        "unique_source_count": 18,
+        "earliest_published": "Thu, 17 Feb 2022 08:00:00 GMT",
+        "latest_published": "Thu, 20 Aug 2026 07:57:00 GMT",
+        "top_sources": [
+            "搜狐网",
+            "UN News",
+            "新浪财经",
+            "guancha.cn",
+            "thepaper.cn"
+        ],
+        "generated_at": "2026-08-21T13:49:29.534454Z",
+        "version": "TopicScorer v2.0"
+    }
+}

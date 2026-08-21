@@ -1,0 +1,33 @@
+{
+    "topic": "中东局势",
+    "score": 85,
+    "recommendation": "制作",
+    "breakdown": {
+        "international_influence": 88,
+        "news_hotness": 84,
+        "user_interest": 87,
+        "video_potential": 100,
+        "source_quality": 57
+    },
+    "weights": {
+        "international_influence": 0.25,
+        "news_hotness": 0.3,
+        "user_interest": 0.2,
+        "video_potential": 0.15,
+        "source_quality": 0.1
+    },
+    "meta": {
+        "unique_source_count": 22,
+        "earliest_published": "Mon, 16 Mar 2026 07:00:00 GMT",
+        "latest_published": "Fri, 21 Aug 2026 09:30:00 GMT",
+        "top_sources": [
+            "新唐人電視台",
+            "英为财情 Investing.com",
+            "搜狐网",
+            "金融界",
+            "黄金网"
+        ],
+        "generated_at": "2026-08-21T13:49:21.650029Z",
+        "version": "TopicScorer v2.0"
+    }
+}
