@@ -84,21 +84,23 @@ class NewsAgent(BaseAgent):
         published_time = str(result.get("published_time", "")).strip()
 
         content = (
-            str(result.get("content", "")).strip()
-            or str(result.get("snippet", "")).strip()
-            or str(result.get("description", "")).strip()
+            str(result.get("content")).strip()
+            if result.get("content") is not None else ""
         )
-
-        if not content and title:
-            content = title
-
-        summary = str(result.get("summary", "")).strip()
-
-        if not summary and content:
-            if len(content) > 180:
-                summary = content[:177] + "..."
-            else:
-                summary = content
+        summary = (
+            str(result.get("summary")).strip()
+            if result.get("summary") is not None else ""
+        )
+        if not summary:
+            summary = (
+                str(result.get("snippet")).strip()
+                if result.get("snippet") is not None else ""
+            )
+        if not summary:
+            summary = (
+                str(result.get("description")).strip()
+                if result.get("description") is not None else ""
+            )
 
         return {
             "article_id": f"article_{index + 1}",
@@ -106,8 +108,11 @@ class NewsAgent(BaseAgent):
             "source": source,
             "url": url,
             "published_time": published_time,
-            "content": content,
-            "summary": summary
+            "content": content or None,
+            "summary": summary or None,
+            "content_available": bool(content),
+            "summary_available": bool(summary),
+            "source_id": f"source_{source.lower()}" if source else None
         }
 
     # ==========================================

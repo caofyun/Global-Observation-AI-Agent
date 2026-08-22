@@ -36,7 +36,7 @@ class TopicSelector(BaseAgent):
             # basic normalization
             topic = data.get("topic")
             if not topic or topic == "未知主题":
-                topic = name.split("_", 1)[-1]
+                continue
             try:
                 score = float(data.get("score", 0))
             except Exception:
@@ -90,6 +90,13 @@ class TopicSelector(BaseAgent):
             return "人工观察"
         return "不制作"
 
+    def map_production_decision(self, decision):
+        return {
+            "进入制作": "APPROVE",
+            "人工观察": "REVIEW",
+            "不制作": "REJECT",
+        }.get(decision, "REJECT")
+
     def execute(self, input_data=None):
         # input_data expected to provide the projects root directory
         if isinstance(input_data, dict):
@@ -139,6 +146,11 @@ class TopicSelector(BaseAgent):
         result = {
             "selected_topic": selected_topics,
             "decision": decision,
+            "production_decision": (
+                [self.map_production_decision(item) for item in decision]
+                if isinstance(decision, list)
+                else self.map_production_decision(decision)
+            ),
             "selection_score": selection_score,
             "ranking": ranking_list,
             "reason": reasons,

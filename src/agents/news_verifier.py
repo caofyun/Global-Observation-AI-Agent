@@ -637,6 +637,8 @@ JSON格式：
                 "status":
                     "AI_API_ERROR",
 
+                "provider_error": str(e),
+
                 "ai_model":
                     getattr(
                         self.ai_client,
@@ -720,6 +722,11 @@ JSON格式：
 
                 "status":
                     "AI_ANALYSIS_FAILED",
+
+                "provider_error": ai_result.get(
+                    "provider_error",
+                    ai_result.get("content", "")
+                ),
 
                 "ai_model":
                     ai_result.get(
@@ -1164,10 +1171,13 @@ JSON格式：
             title = str(article.get("title", "")).strip()
             source = str(article.get("source", "")).strip() or self.identify_source(article)
             url = str(article.get("url", "")).strip()
-            published_time = str(article.get("published_time", "")).strip()
-            content = str(article.get("content", "")).strip()
-            summary = str(article.get("summary", "")).strip()
-            source_id = "source_" + str(index)
+            published_value = article.get("published_time") or article.get("published_at")
+            published_time = str(published_value).strip() if published_value is not None else ""
+            content_value = article.get("content")
+            summary_value = article.get("summary")
+            content = str(content_value).strip() if content_value is not None else ""
+            summary = str(summary_value).strip() if summary_value is not None else ""
+            source_id = str(article.get("source_id", "")).strip() or "source_" + str(index)
 
             if not title:
                 continue
@@ -1180,7 +1190,9 @@ JSON格式：
                 "url": url,
                 "published_time": published_time,
                 "content": content,
-                "summary": summary
+                "summary": summary,
+                "content_available": bool(content),
+                "summary_available": bool(summary)
             })
 
             if source:
@@ -1261,6 +1273,31 @@ JSON格式：
 
         ai_verification_data = self.analyze_with_ai(working_data)
         ai_verification_data["topic"] = topic
+
+        ai_status = ai_verification_data.get("status", "AI_ANALYSIS_FAILED")
+        verification_data["ai_verification_status"] = ai_status
+        verification_data["content_quality"] = {
+            "content_available": any(
+                article["content_available"] for article in normalized_articles
+            ),
+            "summary_available": any(
+                article["summary_available"] for article in normalized_articles
+            )
+        }
+        if ai_status != "SUCCESS":
+            verification_data["confidence"] = "LOW"
+
+        with open(
+            verification_path,
+            "w",
+            encoding="utf-8"
+        ) as f:
+            json.dump(
+                verification_data,
+                f,
+                ensure_ascii=False,
+                indent=4
+            )
 
         self.save_ai_verification(
             project_path,

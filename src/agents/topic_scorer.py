@@ -51,11 +51,11 @@ class TopicScorer(BaseAgent):
         scores = []
         for s in sources:
             try:
-                c = int(s.get("credibility_score", 50))
+                c = int(s.get("source_credibility_score", s.get("credibility_score", 50)))
             except Exception:
                 c = 50
             try:
-                v = int(s.get("verification_score", 50))
+                v = int(s.get("cross_source_verification_score", s.get("verification_score", 50)))
             except Exception:
                 v = 50
 
@@ -114,7 +114,7 @@ class TopicScorer(BaseAgent):
         if verification_data and isinstance(verification_data.get("articles"), list):
             times = []
             for a in verification_data.get("articles", []):
-                t = a.get("published_time")
+                t = a.get("published_time") or a.get("published_at")
                 if not t:
                     continue
                 try:
@@ -128,6 +128,34 @@ class TopicScorer(BaseAgent):
                 meta["latest_published"] = latest[1]
 
         return breakdown, meta
+
+    def assess_data_quality(self, verification_data):
+        articles = verification_data.get("articles", []) if verification_data else []
+        if not isinstance(articles, list):
+            articles = []
+        missing_published = sum(
+            1 for article in articles
+            if not article.get("published_time") and not article.get("published_at")
+        )
+        missing_content = sum(
+            1 for article in articles
+            if not article.get("content")
+        )
+        ai_failed = verification_data.get("ai_verification_status") not in (None, "SUCCESS")
+        issues = []
+        if missing_published:
+            issues.append(f"{missing_published}条新闻缺少发布时间")
+        if missing_content:
+            issues.append(f"{missing_content}条新闻缺少正文")
+        if ai_failed:
+            issues.append("AI事实核验失败")
+        return {
+            "status": "DEGRADED" if issues else "COMPLETE",
+            "issues": issues,
+            "missing_published_at": missing_published,
+            "missing_content": missing_content,
+            "ai_verification_failed": ai_failed,
+        }
 
     def decide_recommendation(self, score, source_quality, verification_data):
 
@@ -176,6 +204,7 @@ class TopicScorer(BaseAgent):
         verification_data = self.load_json(verification_path)
 
         breakdown, meta = self.compute_breakdown(source_rank, verification_data)
+        data_quality = self.assess_data_quality(verification_data or {})
 
         # weights per design
         weights = {
@@ -204,7 +233,9 @@ class TopicScorer(BaseAgent):
             "recommendation": recommendation,
             "breakdown": breakdown,
             "weights": weights,
-            "meta": meta
+            "meta": meta,
+            "data_quality": data_quality,
+            "reason": "；".join(data_quality["issues"]) if data_quality["issues"] else "输入数据完整"
         }
 
         output_dir = os.path.join(project_path, "04_热点评分")

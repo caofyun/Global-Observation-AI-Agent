@@ -79,13 +79,22 @@ class AIModelClient:
 
         if self.provider == "gemini":
 
-            response = self.client.models.generate_content(
+            try:
+                response = self.client.models.generate_content(
 
-                model=self.model,
+                    model=self.model,
 
-                contents=prompt
+                    contents=prompt
 
-            )
+                )
+            except Exception as error:
+                return {
+                    "status": "FAILED",
+                    "provider": self.provider,
+                    "model": self.model,
+                    "provider_error": str(error),
+                    "content": ""
+                }
 
             return {
 
@@ -103,9 +112,10 @@ class AIModelClient:
         # 暂不支持其他模型
         # ======================================
 
-        raise ValueError(
-
-            f"暂不支持的AI服务商："
-            f"{self.provider}"
-
-        )
+        return {
+            "status": "FAILED",
+            "provider": self.provider,
+            "model": self.model,
+            "provider_error": f"暂不支持的AI服务商：{self.provider}",
+            "content": ""
+        }

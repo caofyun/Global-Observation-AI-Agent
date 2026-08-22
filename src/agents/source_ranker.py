@@ -93,7 +93,10 @@ class SourceRanker(BaseAgent):
             return self.source_database[source]
 
         for name, info in self.source_database.items():
-            if name.lower() in source.lower():
+            aliases = info.get("aliases", [])
+            if name.lower() in source.lower() or any(
+                str(alias).lower() in source.lower() for alias in aliases
+            ):
                 return info
 
         return {
@@ -150,6 +153,26 @@ class SourceRanker(BaseAgent):
             else:
                 source_map[source_name]["count"] += 1
 
+        return list(source_map.values())
+
+    def collect_source_records(self, verification_data):
+        source_map = {}
+        for article in verification_data.get("articles", []):
+            if not isinstance(article, dict):
+                continue
+            source_name = self.normalize_source(article.get("source", ""))
+            if not source_name:
+                continue
+            source_id = self.normalize_source(article.get("source_id", ""))
+            if not source_id:
+                source_id = "source_" + source_name.lower().replace(" ", "_")
+            if source_id not in source_map:
+                source_map[source_id] = {
+                    "source_id": source_id,
+                    "source_name": source_name,
+                    "count": 0
+                }
+            source_map[source_id]["count"] += 1
         return list(source_map.values())
 
     # ======================================
@@ -234,13 +257,11 @@ class SourceRanker(BaseAgent):
             verification_data = json.load(f)
 
         topic = verification_data.get("topic", "")
-        source_names = self.collect_source_names(verification_data)
-        unique_sources = self.analyze_sources(source_names)
+        unique_sources = self.collect_source_records(verification_data)
 
         source_results = []
-        index = 1
-
         for item in unique_sources:
+            source_id = item["source_id"]
             source_name = item["source_name"]
             info = self.get_source_info(source_name)
             credibility_score = int(info.get("score", 40))
@@ -248,15 +269,16 @@ class SourceRanker(BaseAgent):
             rank = self.convert_rank(credibility_score)
 
             source_results.append({
-                "source_id": f"source_{index}",
+                "source_id": source_id,
                 "source_name": source_name,
-                "source_type": info.get("type", "未知"),
+                "source_type": info.get("category", info.get("type", "未知来源")),
+                "source_credibility_score": credibility_score,
+                "cross_source_verification_score": verification_score,
                 "credibility_score": credibility_score,
                 "verification_score": verification_score,
                 "source_rank": rank,
                 "reason": self.build_reason(info, verification_score)
             })
-            index += 1
 
         output_dir = os.path.join(project_path, "03_来源评级")
         os.makedirs(output_dir, exist_ok=True)

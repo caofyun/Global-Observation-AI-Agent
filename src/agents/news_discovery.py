@@ -111,6 +111,11 @@ class NewsDiscovery(BaseAgent):
     def _as_text(value):
         return "" if value is None else str(value).strip()
 
+    @staticmethod
+    def _source_id(source):
+        normalized = re.sub(r"[^a-z0-9]+", "_", str(source).strip().casefold()).strip("_")
+        return "source_" + (normalized or "unknown")
+
     def _validate_request(self, request):
         if not isinstance(request, dict):
             raise ValueError("Discovery Request 必须是对象")
@@ -155,6 +160,7 @@ class NewsDiscovery(BaseAgent):
             "queries": queries,
             "title": self._as_text(result.get("title")),
             "source": self._as_text(result.get("source")),
+            "source_id": self._source_id(result.get("source")),
             "url": self._normalize_url(result.get("url")),
             "published_at": published_at,
             "discovered_at": discovered_at,

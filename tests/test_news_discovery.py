@@ -216,7 +216,7 @@ def test_article_fields_and_content_summary_rules():
     article = NewsDiscovery(search_tool=fake, now_provider=lambda: NOW).run(REQUEST)["result"]["articles"][0]
 
     assert set(article) == {
-        "article_id", "domain", "topic", "query", "queries", "title", "source",
+        "article_id", "domain", "topic", "query", "queries", "title", "source", "source_id",
         "url", "published_at", "discovered_at", "summary", "content", "discovery_status",
     }
     assert article["summary"] is None
