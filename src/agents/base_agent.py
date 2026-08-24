@@ -11,20 +11,14 @@ class BaseAgent(ABC):
     # ==========================================
 
     def __init__(self, agent_name=None, project_path=None):
-
         self.agent_name = agent_name or "BaseAgent"
         self.project_path = project_path
 
         # 兼容历史属性，避免影响当前子类的已有使用方式
         self.name = self.agent_name
 
-        # Agent 初始状态
         self.status = "CREATED"
-
-        # 最后一次执行结果
         self.result = {}
-
-        # 错误信息
         self.error = ""
 
     # ==========================================
@@ -32,7 +26,6 @@ class BaseAgent(ABC):
     # ==========================================
 
     def run(self, input_data):
-
         self.status = "CREATED"
         self.error = ""
         self.result = {}
@@ -40,23 +33,14 @@ class BaseAgent(ABC):
         normalized_input = input_data
 
         if isinstance(input_data, dict):
-
             if input_data.get("agent_name"):
-
-                self.agent_name = str(
-                    input_data.get("agent_name")
-                )
-
+                self.agent_name = str(input_data.get("agent_name"))
                 self.name = self.agent_name
 
             if input_data.get("project_path") is not None:
-
                 self.project_path = input_data.get("project_path")
 
-            normalized_input = input_data.get(
-                "input_data",
-                input_data
-            )
+            normalized_input = input_data.get("input_data", input_data)
 
         print()
         print("==============================")
@@ -66,13 +50,9 @@ class BaseAgent(ABC):
         self.status = "RUNNING"
 
         try:
-
-            execution_result = self.execute(
-                normalized_input
-            )
+            execution_result = self.execute(normalized_input)
 
             if execution_result is None:
-
                 execution_result = {}
 
             self.result = (
@@ -83,32 +63,37 @@ class BaseAgent(ABC):
 
             self.status = "SUCCESS"
 
-            print(
-                f"{self.agent_name} 执行完成"
-            )
+            print(f"{self.agent_name} 执行完成")
 
-            return {
+            # 保留统一Envelope，同时向后兼容历史测试/调用方：
+            # Agent.execute() 返回的业务字段直接暴露在顶层。
+            response = {
                 "agent_name": self.agent_name,
                 "status": self.status,
                 "result": self.result,
-                "error": ""
+                "error": "",
             }
+            response.update(self.result)
+            return response
+
+        except ValueError:
+            # 输入契约错误属于调用方可直接处理的异常，不能被静默吞掉。
+            self.status = "FAILED"
+            self.result = {}
+            raise
 
         except Exception as e:
-
             self.status = "FAILED"
             self.result = {}
             self.error = str(e)
 
-            print(
-                f"{self.agent_name} 执行失败：{e}"
-            )
+            print(f"{self.agent_name} 执行失败：{e}")
 
             return {
                 "agent_name": self.agent_name,
                 "status": self.status,
                 "result": {},
-                "error": self.error
+                "error": self.error,
             }
 
     # ==========================================
@@ -117,7 +102,6 @@ class BaseAgent(ABC):
 
     @abstractmethod
     def execute(self, input_data):
-
         pass
 
     # ==========================================
@@ -125,10 +109,9 @@ class BaseAgent(ABC):
     # ==========================================
 
     def get_status(self):
-
         return {
             "agent_name": self.agent_name,
             "status": self.status,
             "result": self.result,
-            "error": self.error
+            "error": self.error,
         }
