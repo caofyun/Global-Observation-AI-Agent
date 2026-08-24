@@ -1,5 +1,6 @@
 import sys
 import os
+import json
 
 
 PROJECT_ROOT = os.path.dirname(
@@ -45,8 +46,9 @@ def test_news_verifier_extracts_and_validates_ai_json():
         "human_review_required": True,
     }
 
+    payload = json.dumps(valid, ensure_ascii=False)
     parsed = verifier.extract_json_from_text(
-        "分析结果：\n```json\n" + str(valid).replace("'", '"') + "\n```"
+        "分析结果：\n```json\n" + payload + "\n```"
     )
 
     assert parsed == valid
