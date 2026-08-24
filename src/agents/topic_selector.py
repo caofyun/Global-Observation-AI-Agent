@@ -23,6 +23,28 @@ class TopicSelector(BaseAgent):
         if not os.path.isdir(projects_root):
             return candidates
 
+        # ProductionController passes the current project directory, while
+        # standalone multi-project selection passes the projects root.
+        # Support both forms without changing the public interface.
+        direct_score_path = os.path.join(projects_root, "04_热点评分", "topic_score.json")
+        direct_data = self.load_json(direct_score_path)
+        if direct_data:
+            topic = direct_data.get("topic")
+            if topic and topic != "未知主题":
+                try:
+                    score = float(direct_data.get("score", 0))
+                except Exception:
+                    score = 0.0
+                candidates.append({
+                    "project": os.path.basename(os.path.normpath(projects_root)),
+                    "topic": topic,
+                    "score": score,
+                    "recommendation": direct_data.get("recommendation", "不制作"),
+                    "breakdown": direct_data.get("breakdown", {}),
+                    "raw": direct_data
+                })
+            return candidates
+
         for name in os.listdir(projects_root):
             project_dir = os.path.join(projects_root, name)
             if not os.path.isdir(project_dir):
