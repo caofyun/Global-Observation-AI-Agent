@@ -1,6 +1,6 @@
 import os
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 
 from src.agents.base_agent import BaseAgent
 
@@ -23,10 +23,9 @@ class TopicSelector(BaseAgent):
         if not os.path.isdir(projects_root):
             return candidates
 
-        # ProductionController passes the current project directory, while
-        # standalone multi-project selection passes the projects root.
-        # Support both forms without changing the public interface.
-        direct_score_path = os.path.join(projects_root, "04_热点评分", "topic_score.json")
+        direct_score_path = os.path.join(
+            projects_root, "04_热点评分", "topic_score.json"
+        )
         direct_data = self.load_json(direct_score_path)
         if direct_data:
             topic = direct_data.get("topic")
@@ -41,7 +40,7 @@ class TopicSelector(BaseAgent):
                     "score": score,
                     "recommendation": direct_data.get("recommendation", "不制作"),
                     "breakdown": direct_data.get("breakdown", {}),
-                    "raw": direct_data
+                    "raw": direct_data,
                 })
             return candidates
 
@@ -50,39 +49,41 @@ class TopicSelector(BaseAgent):
             if not os.path.isdir(project_dir):
                 continue
 
-            score_path = os.path.join(project_dir, "04_热点评分", "topic_score.json")
+            score_path = os.path.join(
+                project_dir, "04_热点评分", "topic_score.json"
+            )
             data = self.load_json(score_path)
             if not data:
                 continue
 
-            # basic normalization
             topic = data.get("topic")
             if not topic or topic == "未知主题":
                 continue
+
             try:
                 score = float(data.get("score", 0))
             except Exception:
                 score = 0.0
-            recommendation = data.get("recommendation", "不制作")
-            breakdown = data.get("breakdown", {})
 
             candidates.append({
                 "project": name,
                 "topic": topic,
                 "score": score,
-                "recommendation": recommendation,
-                "breakdown": breakdown,
-                "raw": data
+                "recommendation": data.get("recommendation", "不制作"),
+                "breakdown": data.get("breakdown", {}),
+                "raw": data,
             })
 
         return candidates
 
     def rank_candidates(self, candidates):
-        # recommendation priority: 制作(0) > 观望(1) > 不制作(2)
         prio = {"制作": 0, "观望": 1, "不制作": 2}
 
-        def key_fn(c):
-            return (-float(c.get("score", 0)), prio.get(c.get("recommendation"), 3))
+        def key_fn(candidate):
+            return (
+                -float(candidate.get("score", 0)),
+                prio.get(candidate.get("recommendation"), 3),
+            )
 
         return sorted(candidates, key=key_fn)
 
@@ -120,13 +121,16 @@ class TopicSelector(BaseAgent):
         }.get(decision, "REJECT")
 
     def execute(self, input_data=None):
-        # input_data expected to provide the projects root directory
         if isinstance(input_data, dict):
             projects_root = input_data.get("project_path") or self.project_path
             mode = input_data.get("mode", "single")
             top_n = int(input_data.get("top_n", 1))
         else:
-            projects_root = self.project_path if input_data is None else str(input_data).strip()
+            projects_root = (
+                self.project_path
+                if input_data is None
+                else str(input_data).strip()
+            )
             mode = "single"
             top_n = 1
 
@@ -134,36 +138,39 @@ class TopicSelector(BaseAgent):
             raise ValueError("缺少project_path")
 
         candidates = self.collect_candidates(projects_root)
-
         if not candidates:
             raise FileNotFoundError("No candidate topics")
 
         ranked = self.rank_candidates(candidates)
 
         ranking_list = []
-        for idx, c in enumerate(ranked, start=1):
+        for idx, candidate in enumerate(ranked, start=1):
             ranking_list.append({
                 "rank": idx,
-                "topic": c.get("topic"),
-                "score": int(round(c.get("score", 0))),
-                "recommendation": c.get("recommendation")
+                "topic": candidate.get("topic"),
+                "score": int(round(candidate.get("score", 0))),
+                "recommendation": candidate.get("recommendation"),
             })
 
-        # select top N topics depending on mode
         if mode == "multi":
             selected = ranked[:top_n]
-            selected_topics = [s.get("topic") for s in selected]
-            decision = [self.map_decision(s.get("score"), s.get("recommendation")) for s in selected]
-            selection_score = [int(round(s.get("score", 0))) for s in selected]
+            selected_topics = [item.get("topic") for item in selected]
+            decision = [
+                self.map_decision(item.get("score"), item.get("recommendation"))
+                for item in selected
+            ]
+            selection_score = [
+                int(round(item.get("score", 0))) for item in selected
+            ]
         else:
             selected = ranked[0]
             selected_topics = selected.get("topic")
-            decision = self.map_decision(selected.get("score"), selected.get("recommendation"))
+            decision = self.map_decision(
+                selected.get("score"), selected.get("recommendation")
+            )
             selection_score = int(round(selected.get("score", 0)))
 
-        # derive reasons from top candidate breakdown
-        top_breakdown = ranked[0].get("breakdown", {})
-        reasons = self.derive_reasons(top_breakdown)
+        reasons = self.derive_reasons(ranked[0].get("breakdown", {}))
 
         result = {
             "selected_topic": selected_topics,
@@ -173,14 +180,17 @@ class TopicSelector(BaseAgent):
                 if isinstance(decision, list)
                 else self.map_production_decision(decision)
             ),
+            # Stable public contract: score is the scalar selection score in
+            # single mode; selection_score is retained as the legacy alias.
+            "score": selection_score,
             "selection_score": selection_score,
             "ranking": ranking_list,
             "reason": reasons,
             "meta": {
                 "candidate_count": len(ranked),
-                "generated_at": datetime.utcnow().isoformat() + "Z",
-                "version": "TopicSelector v2.0"
-            }
+                "generated_at": datetime.now(UTC).isoformat(),
+                "version": "TopicSelector v2.0",
+            },
         }
 
         output_dir = os.path.join(projects_root, "05_选题决策")
