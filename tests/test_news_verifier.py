@@ -1,107 +1,60 @@
 import sys
 import os
-import json
 
 
-# ==========================================
-# 添加项目根目录
-# ==========================================
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(__file__)
-    )
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
 )
 
+sys.path.insert(0, PROJECT_ROOT)
 
 from src.agents.news_verifier import NewsVerifier
 
 
-# ==========================================
-# 输入项目路径
-# ==========================================
+def test_news_verifier_identifies_source_from_name_and_url():
+    verifier = NewsVerifier()
 
-project_path = input(
-    "请输入需要核验的视频项目路径："
-).strip()
+    assert verifier.identify_source({"source": "Reuters"}) == "Reuters"
+    assert (
+        verifier.identify_source(
+            {"url": "https://www.example.com/news/1"}
+        )
+        == "www.example.com"
+    )
+    assert verifier.identify_source({}) == "未知来源"
 
 
-# ==========================================
-# 检查项目路径
-# ==========================================
+def test_news_verifier_normalizes_title():
+    verifier = NewsVerifier()
 
-if not project_path:
+    assert verifier.normalize_title(" 美国航母部署！ ") == "美国航母部署"
+    assert verifier.normalize_title("US, Navy: Test") == "usnavytest"
 
-    print(
-        "项目路径不能为空"
+
+def test_news_verifier_extracts_and_validates_ai_json():
+    verifier = NewsVerifier()
+
+    valid = {
+        "confidence": "HIGH",
+        "claims": [],
+        "supporting_evidence": [],
+        "conflicts": [],
+        "uncertainties": [],
+        "risk_notes": [],
+        "ai_summary": "test",
+        "human_review_required": True,
+    }
+
+    parsed = verifier.extract_json_from_text(
+        "分析结果：\n```json\n" + str(valid).replace("'", '"') + "\n```"
     )
 
-    sys.exit()
+    assert parsed == valid
+    assert verifier.validate_ai_result(parsed) is True
 
 
-if not os.path.exists(
-    project_path
-):
+def test_news_verifier_rejects_invalid_ai_result():
+    verifier = NewsVerifier()
 
-    print(
-        "项目路径不存在："
-    )
-
-    print(
-        project_path
-    )
-
-    sys.exit()
-
-
-# ==========================================
-# 创建NewsVerifier
-# ==========================================
-
-verifier = NewsVerifier()
-
-
-# ==========================================
-# 执行新闻核验
-# ==========================================
-
-result = verifier.run({
-
-    "project_path":
-        project_path
-
-})
-
-
-# ==========================================
-# 输出结果
-# ==========================================
-
-print()
-print("==============================")
-print("NewsVerifier测试结果")
-print("==============================")
-
-
-print(
-    json.dumps(
-        result,
-        ensure_ascii=False,
-        indent=4
-    )
-)
-
-
-# ==========================================
-# 输出Agent状态
-# ==========================================
-
-print()
-print("==============================")
-print("Agent状态")
-print("==============================")
-
-
-print(
-    verifier.get_status()
-)
+    assert verifier.extract_json_from_text("not json") is None
+    assert verifier.validate_ai_result({"confidence": "INVALID"}) is False
