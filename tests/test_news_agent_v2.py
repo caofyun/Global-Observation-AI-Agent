@@ -1,116 +1,57 @@
 import sys
 import os
-import json
 
 
-# ==========================================
-# 添加项目根目录
-# ==========================================
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(__file__)
-    )
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
 )
 
+sys.path.insert(0, PROJECT_ROOT)
 
 from src.agents.news_agent import NewsAgent
-from src.core.project_manager import ProjectManager
 
 
-# ==========================================
-# 创建项目管理器
-# ==========================================
-
-project_manager = ProjectManager()
-
-
-# ==========================================
-# 创建NewsAgent
-# ==========================================
-
-news_agent = NewsAgent()
-
-
-# ==========================================
-# 输入新闻选题
-# ==========================================
-
-topic = input(
-    "请输入新闻选题："
-).strip()
+class FakeSearchTool:
+    def search(self, keyword, max_results=10):
+        return [
+            {
+                "title": f"{keyword} headline",
+                "source": "Test Source",
+                "published_time": "2026-08-24",
+                "url": f"https://example.com/{keyword}",
+                "snippet": "test snippet",
+            }
+        ]
 
 
-# ==========================================
-# 检查输入
-# ==========================================
+def test_news_agent_v2_project_output(tmp_path):
+    project_path = tmp_path / "news_agent_v2_project"
+    agent = NewsAgent(project_path=str(project_path))
+    agent.search_tool = FakeSearchTool()
 
-if not topic:
+    result = agent.run({
+        "topic_keyword": "美国航母部署"
+    })
 
-    print(
-        "新闻选题不能为空"
+    assert result["topic_keyword"] == "美国航母部署"
+    assert len(result["search_keywords"]) == 3
+    assert len(result["news_articles"]) == 3
+
+    articles_path = (
+        project_path
+        / "01_新闻资料"
+        / "news_articles.json"
     )
 
-    sys.exit()
+    assert articles_path.exists()
 
 
-# ==========================================
-# 创建视频项目
-# ==========================================
+def test_news_agent_v2_rejects_empty_topic():
+    agent = NewsAgent()
 
-print()
-print("==============================")
-print("正在创建测试视频项目")
-print("==============================")
-
-
-project_path = project_manager.create_project(
-    topic
-)
-
-
-# ==========================================
-# 调用NewsAgent V2.0
-# ==========================================
-
-result = news_agent.run({
-
-    "topic": topic,
-
-    "project_path": project_path
-
-})
-
-
-# ==========================================
-# 输出结果
-# ==========================================
-
-print()
-print("==============================")
-print("NewsAgent V2.0 测试结果")
-print("==============================")
-
-
-print(
-    json.dumps(
-        result,
-        ensure_ascii=False,
-        indent=4
-    )
-)
-
-
-# ==========================================
-# 输出Agent状态
-# ==========================================
-
-print()
-print("==============================")
-print("Agent状态")
-print("==============================")
-
-
-print(
-    news_agent.get_status()
-)
+    try:
+        agent.run({"topic_keyword": ""})
+    except Exception as exc:
+        assert "topic_keyword" in str(exc)
+    else:
+        raise AssertionError("empty topic should fail")
