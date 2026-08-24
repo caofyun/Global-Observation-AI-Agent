@@ -1,74 +1,27 @@
 import sys
 import os
-import json
 
 
-# ==========================================
-# 添加项目根目录
-# ==========================================
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(__file__)
-    )
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
 )
 
+sys.path.insert(0, PROJECT_ROOT)
 
 from src.utils.search_tool import SearchTool
 
 
-# ==========================================
-# 创建SearchTool
-# ==========================================
-
-search_tool = SearchTool()
+def test_search_tool_initialization():
+    search_tool = SearchTool()
+    assert search_tool.name == "新闻搜索工具"
 
 
-# ==========================================
-# 输入搜索关键词
-# ==========================================
+def test_search_tool_rejects_empty_keyword():
+    search_tool = SearchTool()
 
-keyword = input(
-    "请输入新闻搜索关键词："
-).strip()
-
-
-# ==========================================
-# 执行搜索
-# ==========================================
-
-results = search_tool.search(
-    keyword,
-    max_results=10
-)
-
-
-# ==========================================
-# 输出搜索结果
-# ==========================================
-
-print()
-print("==============================")
-print("搜索结果")
-print("==============================")
-
-
-print(
-    json.dumps(
-        results,
-        ensure_ascii=False,
-        indent=4
-    )
-)
-
-
-# ==========================================
-# 输出结果数量
-# ==========================================
-
-print()
-print("==============================")
-print(
-    f"共返回 {len(results)} 条结果"
-)
-print("==============================")
+    try:
+        search_tool.search("   ")
+    except ValueError as exc:
+        assert "搜索关键词不能为空" in str(exc)
+    else:
+        raise AssertionError("empty keyword should fail")
