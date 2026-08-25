@@ -83,3 +83,77 @@ def test_pipeline_json_contract(tmp_path):
         data = json.loads((project / relative_path).read_text(encoding="utf-8"))
         for field in fields:
             assert field in data, f"{relative_path} missing field: {field}"
+
+
+def test_topic_score_to_selection_data_flow(tmp_path):
+    project = Path(tmp_path)
+    verification_dir = project / "02_事实核验"
+    rank_dir = project / "03_来源评级"
+    verification_dir.mkdir(parents=True)
+    rank_dir.mkdir(parents=True)
+
+    (verification_dir / "verification.json").write_text(
+        json.dumps(
+            {
+                "topic": "测试主题",
+                "articles": [
+                    {
+                        "source": "Reuters",
+                        "source_id": "source_reuters",
+                        "content": "测试正文",
+                    }
+                ],
+                "sources": [],
+                "facts": [],
+                "conflicts": [],
+                "uncertainties": [],
+                "verification_status": "SINGLE_SOURCE",
+                "confidence": "MEDIUM",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (rank_dir / "source_rank.json").write_text(
+        json.dumps(
+            {
+                "topic": "测试主题",
+                "sources": [
+                    {
+                        "source_id": "source_reuters",
+                        "source_name": "Reuters",
+                        "source_credibility_score": 90,
+                        "cross_source_verification_score": 50,
+                        "credibility_score": 90,
+                        "verification_score": 50,
+                        "source_rank": "A",
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    from src.agents.topic_scorer import TopicScorer
+    from src.agents.topic_selector import TopicSelector
+
+    scorer = TopicScorer(project_path=str(project))
+    score_result = scorer.run({"project_path": str(project), "topic": "测试主题"})
+
+    assert score_result["status"] == "SUCCESS"
+    score_data = json.loads(
+        (project / "04_热点评分" / "topic_score.json").read_text(encoding="utf-8")
+    )
+    assert score_data["topic"] == "测试主题"
+    assert isinstance(score_data["score"], int)
+
+    selector = TopicSelector(project_path=str(project))
+    selection_result = selector.run({"project_path": str(project), "mode": "single", "top_n": 1})
+
+    assert selection_result["status"] == "SUCCESS"
+    selection_data = json.loads(
+        (project / "05_选题决策" / "topic_selection.json").read_text(encoding="utf-8")
+    )
+    assert selection_data["selected_topic"] == "测试主题"
+    assert selection_data["score"] == score_data["score"]
