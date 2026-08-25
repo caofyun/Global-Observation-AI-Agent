@@ -1,6 +1,6 @@
 import os
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 from email.utils import parsedate_to_datetime
 
 from src.agents.base_agent import BaseAgent
@@ -106,7 +106,7 @@ class TopicScorer(BaseAgent):
             "earliest_published": None,
             "latest_published": None,
             "top_sources": [s.get("source_name") for s in sources[:5]],
-            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "generated_at": datetime.now(UTC).isoformat(),
             "version": "TopicScorer v2.0"
         }
 

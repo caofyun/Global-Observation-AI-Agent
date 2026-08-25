@@ -1,0 +1,27 @@
+name: Pipeline Contract Check
+
+on:
+  push:
+    branches: [main, task-006-x-02-fix]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pytest-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install test runner
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Run contract tests
+        run: python -m pytest -q tests/test_pipeline_contract.py tests/test_base_agent.py tests/test_news_agent.py tests/test_news_agent_v2.py tests/test_source_ranker.py
