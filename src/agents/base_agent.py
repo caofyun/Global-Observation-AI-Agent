@@ -76,11 +76,21 @@ class BaseAgent(ABC):
             response.update(self.result)
             return response
 
-        except ValueError:
-            # 输入契约错误属于调用方可直接处理的异常，不能被静默吞掉。
+        except ValueError as e:
+            # 输入契约错误也是 Agent 的标准失败结果，不能让异常穿透 run()。
+            # 这样所有 Agent 都遵守统一的 SUCCESS / FAILED Envelope。
             self.status = "FAILED"
             self.result = {}
-            raise
+            self.error = str(e)
+
+            print(f"{self.agent_name} 执行失败：{self.error}")
+
+            return {
+                "agent_name": self.agent_name,
+                "status": self.status,
+                "result": {},
+                "error": self.error,
+            }
 
         except Exception as e:
             self.status = "FAILED"

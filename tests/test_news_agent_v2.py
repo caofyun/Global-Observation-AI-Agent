@@ -1,8 +1,6 @@
 import sys
 import os
 
-import pytest
-
 
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
@@ -51,5 +49,8 @@ def test_news_agent_v2_project_output(tmp_path):
 def test_news_agent_v2_rejects_empty_topic():
     agent = NewsAgent()
 
-    with pytest.raises(ValueError, match="topic_keyword"):
-        agent.run({"topic_keyword": ""})
+    result = agent.run({"topic_keyword": ""})
+
+    assert result["status"] == "FAILED"
+    assert "topic_keyword" in result["error"]
+    assert result["result"] == {}
