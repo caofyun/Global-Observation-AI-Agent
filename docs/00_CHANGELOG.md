@@ -1,514 +1,104 @@
 # Global-Observation-AI-Agent
 
-# CHANGELOG
+# CHANGELOG V2.1
 
-版本：
-
-V1.0
-
-
-项目：
-
-Global-Observation-AI-Agent
-
-
+项目：Global-Observation-AI-Agent
 
 ---
 
-# 项目更新日志
+## 2026-08-25
 
+## TASK-007：项目状态同步与开发基线校准
 
-## 2026-08-17
+### 工程基线
 
-## V1.0 项目记忆体系建立
+- TASK-006-X-04 已通过
+- 主分支基线提交：`4c0dcb76de218c649418a7d4941583a1b0d461d9`
+- Pipeline Contract Check：CI SUCCESS
+- 本地测试基线：72 passed / 0 failed / 3 warnings / 44.53s
 
+### 状态校准
 
-### 新增
+将项目文档从旧的“NewsVerifier / SourceRanker 开发阶段”校准为当前真实实现状态。
 
+当前新闻智能链：
 
-新增：
-
+```text
+NewsDiscovery
+↓
+NewsVerifier
+↓
+SourceRanker
+↓
+TopicScorer
+↓
+TopicSelector
 ```
-docs/PROJECT_CONTEXT.md
-```
 
+### 已同步文档
 
-作用：
+- `docs/00_PROJECT_STATUS.md`
+- `docs/00_TASKS.md`
+- `docs/02_ARCHITECTURE_BASELINE_V2.0.md`
 
-建立项目长期上下文管理。
+### 重要说明
 
+TopicScorer V2.0、TopicSelector V2.0 已有实际代码、接口文档及测试覆盖，不再按照旧文档标记为“未开始”。
 
-解决：
-
-- ChatGPT上下文限制
-- 跨电脑开发
-- 长周期项目维护
-
-
+3 个 pytest warnings 暂保持为独立质量项，尚未宣称清零。
 
 ---
 
+## 2026-08-25
 
-新增：
+## TASK-006-X-04：统一 Agent Failure Envelope
 
-```
-docs/CHANGELOG.md
-```
+完成 BaseAgent 校验失败的统一 FAILED 返回协议，并同步 Pipeline Contract Check。
 
-
-作用：
-
-记录项目历史开发过程。
-
-
+结果：PASS。
 
 ---
 
+## 历史记录
 
-### 当前项目状态
+### 2026-08-17
 
+建立项目长期记忆、状态和变更记录体系。
 
-完成：
+### 2026-08-16
 
-- AI智能体总体架构设计
-- 开发路线规划
-- 数据结构设计
-- AI生产工作流设计
+完成 AIModelClient V2.0、Gemini API 接入及统一 AI 调用接口。
 
+### 2026-08-15
 
+完成 NewsVerifier 基础模块。
 
----
+### 2026-08-14
 
+完成 NewsAgent V2.0。
 
-# Phase 1 开发记录
+### 2026-08-13
 
+完成 SearchTool V1.0。
 
+### 2026-08-12
 
-## 2026-08-16
-
-
-## AI模型调用模块完成
-
-
-
-完成：
-
-```
-AIModelClient V2.0
-```
-
-
-
-功能：
-
-- 统一AI模型调用接口
-- Gemini API接入
-- 环境变量配置
-
-
-测试结果：
-
-
-```
-status:
-
-SUCCESS
-
-
-provider:
-
-gemini
-
-
-model:
-
-gemini-3.1-flash-lite
-```
-
-
+完成 BaseAgent 基础框架。
 
 ---
-
-
-## 2026-08-15
-
-
-## NewsVerifier基础模块完成
-
-
-
-完成：
-
-```
-NewsVerifier V1.0
-```
-
-
-
-文件：
-
-```
-src/agents/news_verifier.py
-```
-
-
-
-功能：
-
-- 新闻来源分析
-- 来源数量统计
-- 标题去重
-- 基础核验报告
-
-
-
-输出：
-
-```
-verification.json
-```
-
-
-
-测试：
-
-通过
-
-
-
----
-
-
-## 2026-08-14
-
-
-## NewsAgent模块完成
-
-
-
-完成：
-
-```
-NewsAgent V2.0
-```
-
-
-
-功能：
-
-- 调用SearchTool
-- 整理搜索结果
-- 生成新闻数据结构
-
-
-
-输出：
-
-```
-search_results.json
-```
-
-
-
-测试：
-
-通过
-
-
-
----
-
-
-## 2026-08-13
-
-
-## SearchTool模块完成
-
-
-
-完成：
-
-```
-SearchTool V1.0
-```
-
-
-
-功能：
-
-- 新闻关键词搜索
-- 搜索结果整理
-
-
-
-测试：
-
-通过
-
-
-
----
-
-
-## 2026-08-12
-
-
-## Agent基础框架完成
-
-
-
-完成：
-
-```
-BaseAgent
-```
-
-
-
-作用：
-
-提供所有Agent统一基础能力。
-
-
-
-测试：
-
-通过
-
-
-
----
-
-
-## 2026-08-11
-
-
-## 项目代码结构创建
-
-
-
-建立：
-
-```
-src/
-
-agents/
-
-utils/
-
-config/
-
-tests/
-
-docs/
-```
-
-
-
-完成：
-
-基础项目框架。
-
-
-
----
-
-
-# Phase 0 设计阶段记录
-
-
-
-## 2026-08-10
-
-
-完成：
-
-AI生产工作流设计。
-
-
-确定：
-
-AI + 人工协作模式。
-
-
-
----
-
-
-## 2026-08-09
-
-
-完成：
-
-技术路线选择。
-
-
-确定：
-
-技术栈：
-
-```
-Python
-
-VS Code
-
-GitHub
-
-Gemini API
-```
-
-
-
----
-
-
-## 2026-08-08
-
-
-完成：
-
-系统数据结构设计。
-
-
-
-完成：
-
-AI智能体总体架构设计。
-
-
-
----
-
-
-# 当前开发方向
-
-
-
-当前阶段：
-
-```
-Phase 1
-```
-
-
-
-当前任务：
-
-```
-NewsVerifier V2.0升级
-```
-
-
-
-目标：
-
-增加：
-
-
-- AI事实分析
-- 事实主张提取
-- 冲突检测
-- 可信度评分
-- 风险提示
-
-
-新增：
-
-```
-ai_verification.json
-```
-
-
-
----
-
 
 # 后续更新规则
 
+每完成一个重要功能，必须同步：
 
-
-每完成一个重要功能：
-
-必须更新：
-
-
-```
-CHANGELOG.md
-
-PROJECT_CONTEXT.md
-
-00_PROJECT_STATUS.md
+```text
+PROJECT_STATUS
+TASKS
+CHANGELOG
 ```
 
+并经过：
 
-
-然后：
-
-执行：
-
-```
-git add
-
-git commit
-
-git push
-```
-
-
-
----
-
-# 项目原则
-
-
-## 开发原则
-
-
-设计
-
-↓
-
-编码
-
-↓
-
-测试
-
-↓
-
-文档
-
-↓
-
-提交
-
-
-
----
-
-
-## AI原则
-
-
-AI辅助分析。
-
-人工最终审核。
-
-
-
----
-
-
-# 当前版本
-
-
-```
-CHANGELOG V1.0
-```
-
-
-状态：
-
-Active Development
-
+```text
+测试 → CI → Git提交 → 基线冻结
 ```
