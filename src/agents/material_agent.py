@@ -64,7 +64,7 @@ class MaterialAgent(BaseAgent):
                 "不得新增新闻事实",
                 "不得修改scene_id或script_segment_id",
                 "不得虚构source、url或license",
-                "只返回description和search_query等素材需求字段",
+                "只返回description、search_query和status等素材需求字段",
             ],
         }
         response = self.ai_client.generate(json.dumps(prompt, ensure_ascii=False))
@@ -100,6 +100,9 @@ class MaterialAgent(BaseAgent):
             references = scene.get("fact_references")
             if references is None:
                 references = storyboard.get("fact_references", [])
+            status = ai_item.get("status", "REQUESTED")
+            if status not in {"REQUESTED", "READY", "UNRESOLVED", "FAILED"}:
+                status = "REQUESTED"
             asset_requests.append({
                 "asset_id": f"ASSET-{index:03d}",
                 "scene_id": scene["scene_id"],
@@ -112,7 +115,7 @@ class MaterialAgent(BaseAgent):
                 "source": None,
                 "url": None,
                 "license": None,
-                "status": "REQUESTED",
+                "status": status,
             })
         return asset_requests
 
