@@ -89,6 +89,16 @@ class ScriptAgent(BaseAgent):
             {"section_id": "body-01", "type": "BODY", "text": generated.get("body", "")},
             {"section_id": "ending", "type": "ENDING", "text": generated.get("ending", "")},
         ]
+        fact_references = self._build_fact_references(verification, source_rank)
+        script_segments = [
+            {
+                "script_segment_id": section["section_id"].replace("body-01", "SEG-001").replace("hook", "SEG-000").replace("ending", "SEG-999"),
+                "text": section["text"],
+                "fact_references": fact_references,
+            }
+            for section in sections
+            if section["text"]
+        ]
 
         result = {
             "schema_version": "script.v2.0",
@@ -101,7 +111,9 @@ class ScriptAgent(BaseAgent):
             "language": "zh-CN",
             "tone": "objective",
             "sections": sections,
-            "fact_references": self._build_fact_references(verification, source_rank),
+            "script_segments": script_segments,
+            "fact_references": fact_references,
+            "human_confirmation": {"status": "WAIT_USER_CONFIRM", "approved": False},
             "meta": {
                 "generated_at": datetime.now(UTC).isoformat(),
                 "agent": "ScriptAgent",
