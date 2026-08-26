@@ -87,6 +87,23 @@ def test_missing_source_rank_fails(tmp_path):
     assert response["status"] == "FAILED"
 
 
+def test_ai_provider_failure_is_failed(tmp_path):
+    _project(tmp_path)
+
+    class FailingAIClient:
+        def generate(self, prompt):
+            raise RuntimeError("provider unavailable")
+
+    response = ScriptAgent(
+        project_path=str(tmp_path),
+        ai_client=FailingAIClient(),
+    ).run({})
+
+    assert response["status"] == "FAILED"
+    assert "provider unavailable" in response["error"]
+    assert not (tmp_path / "06_脚本" / "script.json").exists()
+
+
 def test_fact_references_are_written(tmp_path):
     _project(tmp_path)
     response = ScriptAgent(project_path=str(tmp_path)).run({})
