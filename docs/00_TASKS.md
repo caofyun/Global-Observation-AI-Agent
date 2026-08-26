@@ -1,45 +1,47 @@
 # Global-Observation-AI-Agent
 
-# TASKS V2.1
+# TASKS V2.2
 
-更新时间：2026-08-25
-项目状态：工程化基线同步阶段
+更新时间：2026-08-26
+项目状态：TASK-008 设计冻结
 
 ---
 
 # 1. 已完成任务
 
 ## TASK-006-X-04
-
 状态：PASS
 
-内容：统一 Agent failure envelope，统一 BaseAgent 校验失败返回协议，并完成 Pipeline Contract Check。
+## TASK-007
+状态：PASS
 
-基线提交：`4c0dcb76de218c649418a7d4941583a1b0d461d9`
-
-测试基线：72 passed / 0 failed / 3 warnings。
+验收基线：Python 3.13 / pytest 9.1.1 / 72 passed / 0 failed / 0 pytest warnings / CI SUCCESS。
 
 ---
 
 # 2. 当前任务
 
-## TASK-007：V2.0 项目状态同步与开发基线冻结
+## TASK-008：ScriptAgent 设计与接口冻结
 
-状态：IN PROGRESS
+状态：DESIGN FROZEN
 
-目标：
+已完成：
 
-- [x] 校准 GitHub main 当前代码状态
-- [x] 校准 Agent 注册表
-- [x] 校准实际数据流水线
-- [x] 更新 PROJECT_STATUS
-- [x] 更新 TASKS
-- [ ] 更新 CHANGELOG
-- [ ] 固化最终 TASK-007 报告
-- [ ] 定位 3 个 pytest warnings
-- [ ] 清理 warnings 并重新执行完整测试
-- [ ] CI 再次确认
-- [ ] TASK-007 最终冻结
+- [x] 审查 TopicSelector → ScriptAgent 边界
+- [x] 定义 ScriptAgent 单一职责
+- [x] 定义输入合同
+- [x] 定义输出合同
+- [x] 定义 script.json 机器通信标准
+- [x] 定义 script.md 人工阅读边界
+- [x] 定义事实追溯规则
+- [x] 定义人工确认节点
+- [x] 定义 SUCCESS / FAILED 错误边界
+- [x] 定义测试最低集合
+- [x] 创建 `docs/agents/SCRIPT_AGENT_INTERFACE_V2.0.md`
+
+下一步：TASK-009 ScriptAgent 实现与自动化测试。
+
+TASK-009 开始前不得修改 TopicSelector 或已冻结上游 Agent。
 
 ---
 
@@ -55,41 +57,53 @@ SourceRanker
 TopicScorer
 ↓
 TopicSelector
-```
-
-关键文件合同：
-
-```text
-news_articles.json
-verification.json
-source_rank.json
-topic_score.json
-topic_selection.json
+↓
+ScriptAgent（设计冻结）
+↓
+StoryboardAgent（未开发）
 ```
 
 ---
 
-# 4. 下一阶段
+# 4. ScriptAgent 数据边界
 
-TASK-007 完成后，进入新的功能任务，而不是继续修改已冻结模块。
+```text
+05_选题决策/topic_selection.json
+        +
+02_事实核验/verification.json
+03_来源评级/source_rank.json
+        ↓
+ScriptAgent
+        ↓
+06_脚本/script.json   ← 机器权威产物
+06_脚本/script.md     ← 人工阅读产物
+        ↓
+人工确认
+        ↓
+StoryboardAgent
+```
 
-候选下一任务：
+---
 
-## TASK-008：ScriptAgent 设计与接口冻结
+# 5. 下一任务
 
-前置条件：TASK-007 PASS。
+## TASK-009：ScriptAgent 实现与自动化测试
+
+前置条件：TASK-008 DESIGN FROZEN。
 
 要求：
 
-- 先设计输入/输出合同
-- 明确 script.md / JSON 等产物边界
-- 明确人工审核边界
-- 编写测试计划
-- 再开始代码实现
+1. 严格按照接口冻结文档实现；
+2. 不修改已冻结上游 Agent；
+3. 新增 `src/agents/script_agent.py`；
+4. 新增 `tests/test_script_agent.py`；
+5. 保持统一 BaseAgent 返回协议；
+6. 完成完整测试；
+7. CI SUCCESS 后再冻结。
 
 ---
 
-# 5. 长期路线
+# 6. 长期路线
 
 1. ScriptAgent
 2. StoryboardAgent
@@ -99,28 +113,24 @@ TASK-007 完成后，进入新的功能任务，而不是继续修改已冻结�
 6. ReviewAgent
 7. PublishAgent
 
-以上均为未来任务，不得在 TASK-007 阶段直接编码。
-
 ---
 
-# 6. 任务执行规则
-
-所有任务遵循：
+# 7. 执行规则
 
 ```text
 需求
 ↓
-设计
+设计冻结
 ↓
-代码
+代码实现
 ↓
-测试
+自动测试
 ↓
 CI
 ↓
-文档
+文档同步
 ↓
-Git
+Git提交
 ↓
-冻结
+基线冻结
 ```
