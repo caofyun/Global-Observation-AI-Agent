@@ -46,7 +46,25 @@ class StoryboardAgent(BaseAgent):
             if not segment.get("text"):
                 raise ValueError(f"script_segments[{index}] 缺少text")
 
-    def _build_scenes(self, script):
+    def _generate_visuals(self, script):
+        if self.ai_client is None:
+            return {}
+        prompt = {
+            "task": "将已确认脚本转换为可执行的视频画面需求",
+            "title": script["title"],
+            "script_segments": script["script_segments"],
+            "rules": [
+                "不得新增事实",
+                "每个画面必须对应原script_segment_id",
+                "仅返回画面描述、素材类型和可选音效",
+            ],
+        }
+        response = self.ai_client.generate(json.dumps(prompt, ensure_ascii=False))
+        if isinstance(response, dict):
+            return response.get("visuals", {}) or {}
+        return {}
+
+    def _build_scenes(self, script, visuals):
         scenes = []
         segments = script["script_segments"]
         references = script.get("fact_references") or []
@@ -63,22 +81,25 @@ class StoryboardAgent(BaseAgent):
             if duration.is_integer():
                 duration = int(duration)
 
+            segment_id = segment["script_segment_id"]
+            ai_visual = visuals.get(segment_id, {}) if isinstance(visuals, dict) else {}
+            if not isinstance(ai_visual, dict):
+                ai_visual = {}
             segment_refs = segment.get("fact_references")
             if segment_refs is None:
                 segment_refs = references
-
             narration = str(segment["text"])
             scenes.append({
                 "scene_id": f"SCENE-{index:03d}",
-                "script_segment_id": segment["script_segment_id"],
+                "script_segment_id": segment_id,
                 "duration_seconds": duration,
                 "narration": narration,
                 "visual": {
-                    "description": segment.get("visual_description") or f"呈现与旁白对应的新闻画面：{script['title']}",
-                    "material_type": segment.get("material_type") or "news_footage",
+                    "description": ai_visual.get("description") or segment.get("visual_description") or f"呈现与旁白对应的新闻画面：{script['title']}",
+                    "material_type": ai_visual.get("material_type") or segment.get("material_type") or "news_footage",
                 },
                 "subtitle": segment.get("subtitle") or narration,
-                "sound_effect": segment.get("sound_effect"),
+                "sound_effect": ai_visual.get("sound_effect", segment.get("sound_effect")),
                 "fact_references": segment_refs,
             })
         return scenes
@@ -95,8 +116,9 @@ class StoryboardAgent(BaseAgent):
         self._require_file(script_path, "script.json")
         script = self._load_json(script_path)
         self._validate_script(script)
+        visuals = self._generate_visuals(script)
 
-        scenes = self._build_scenes(script)
+        scenes = self._build_scenes(script, visuals)
         total_duration = sum(scene["duration_seconds"] for scene in scenes)
         if total_duration <= 0:
             raise ValueError("无法构建有效时间轴")
